@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Кокорев](https://up.htmlacademy.ru/javascript/12/user/430697).
-* Наставник: `Неизвестно`.
+* Наставник: [Антон Попов].
 
 ---
 
