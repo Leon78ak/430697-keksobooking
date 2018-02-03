@@ -74,9 +74,6 @@ getRandomArrayValue = function (array) {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-getRandomArrayValue(FEATURES);
-console.log(getRandomArrayValue(FEATURES));
-
 
 /**
  * возвращает неповторяющееся случайное значение из переданного массива значений
@@ -131,4 +128,4 @@ var createNotice = function (usersNumb) {
 };
 
 var map = document.querySelector('.map');
-map.classList.remove('faded');
+map.classList.remove('map--faded');
