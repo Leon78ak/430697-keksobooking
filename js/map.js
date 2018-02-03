@@ -1,7 +1,5 @@
 'use strict';
 
-var usersNumb = 8;
-
 var TITLE = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
@@ -72,7 +70,7 @@ var getRandomInteger = function (min, max) {
 /**
  * возвращает случайное значение из массива
  * @param  {array} array массив элементов
- * @return {}       значение
+ * @return {[type]}       [description]
  */
 var getRandomArrayValue = function (array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -106,9 +104,22 @@ var createArrayOfNumbers = function (min, max) {
  * вспомогательная ф-я для задания случайного порядка сортировки массива
  * @return {number}   [description]
  */
- var compareRandom = function () {
+var compareRandom = function () {
   // Math.random() возвращает результат от 0 до 1. Вычтем 0.5, чтобы область значений стала [-0.5 ... 0.5)
   return Math.random() - 0.5;
+};
+
+/**
+ * сортирует массив значений в случайном порядке
+ * @param  {array} array массив занчений
+ * @return {array}       отсортированный массив
+ */
+var getShuffleArray = function (array) {
+  // копируем исходный массив
+  var arrayCopy = array.slice(0);
+  // перетрясем исходный массив значений в случайном порядке
+  // отсортируем исходный массив значений в случайном порядке
+  return arrayCopy.sort(compareRandom);
 };
 
 /**
@@ -155,7 +166,7 @@ var createNotices = function (usersNumb) {
         checkout: getRandomArrayValue(CHECK_TIME),
         features: getRandomShuffleArray(FEATURES),
         description: '',
-        photos: []
+        photos: getShuffleArray(PHOTOS)
       },
 
       location: {
@@ -168,7 +179,7 @@ var createNotices = function (usersNumb) {
   return notices;
 };
 
-var cards = createNotices(usersNumb);
+var cards = createNotices(8);
 
 var map = document.querySelector('.map');
 map.classList.remove('map--faded');
@@ -186,7 +197,7 @@ var pinOffset = {
 var renderPin = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
-  pinElement.style ='left: ' + (pin.location.x + pinOffset.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
+  pinElement.style = 'left: ' + (pin.location.x + pinOffset.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
 
   return pinElement;
 };
