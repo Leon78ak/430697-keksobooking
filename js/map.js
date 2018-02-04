@@ -221,7 +221,6 @@ similarPinsList.appendChild(fragmentPin);
 //  перед блоком .map__filters-container:
 var renderCard = function (card) {
   var cardElement = similarCardTemplate.cloneNode(true);
-  debugger;
   cardElement.querySelector('h3').textContent = card.offer.title;
   cardElement.querySelector('p small').textContent = card.offer.address;
   cardElement.querySelector('.popup__price').textContent = card.offer.price + ' \u20bd/ночь';
@@ -239,7 +238,7 @@ var renderCard = function (card) {
   cardElement.querySelector('ul + p').textContent = card.offer.description;
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
 
-  // var ulPictures = cardElement.querySelector('.popup__pictures').content;
+  // var ulPictures = cardElement.querySelector('.popup__pictures');
   // photos.forEach(function (photo) {
   //   var photoElement =
   // })
