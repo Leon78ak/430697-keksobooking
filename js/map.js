@@ -11,7 +11,7 @@ var TITLE = [
   'Неуютное бунгало по колено в воде'
 ];
 
-// ?? нужно ли производить копии исходных массивов: arr.slice(0) для последующей работы с ними??
+var title = TITLE.slice(0);
 
 var TYPE_OF_ACCOMODATION = {
   flat: 'Квартира',
@@ -34,6 +34,8 @@ var FEATURES = [
   'conditioner'
 ];
 
+var features = FEATURES.slice(0);
+
 var PRICE_MIN = 1000;
 var PRICE_MAX = 1000000;
 
@@ -52,6 +54,8 @@ var PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
+
+var photos = PHOTOS.slice(0);
 
 var PIN_HEIGHT = 22;
 
@@ -156,17 +160,17 @@ var createNotices = function (usersNumb) {
       },
 
       offer: {
-        title: getRandomUniqueArrayValue(TITLE),
+        title: getRandomUniqueArrayValue(title),
         address: x + ', ' + y,
         price: getRandomInteger(PRICE_MIN, PRICE_MAX),
-        type: getRandomArrayValue(TYPE_OF_ACCOMODATION),
+        type: getRandomArrayValue(Object.keys(TYPE_OF_ACCOMODATION)),
         rooms: getRandomInteger(MIN_ROOMS, MAX_ROOMS),
         guests: getRandomInteger(MIN_GUESTS, MAX_GUESTS),
         checkin: getRandomArrayValue(CHECK_TIME),
         checkout: getRandomArrayValue(CHECK_TIME),
-        features: getRandomShuffleArray(FEATURES),
+        features: getRandomShuffleArray(features),
         description: '',
-        photos: getShuffleArray(PHOTOS)
+        photos: getShuffleArray(photos)
       },
 
       location: {
@@ -182,12 +186,13 @@ var createNotices = function (usersNumb) {
 var cards = createNotices(8);
 
 var map = document.querySelector('.map');
+var mapFilters = map.querySelector('.map__filters-container');
 map.classList.remove('map--faded');
-
 var template = document.querySelector('template');
 var similarPinTemplate = template.content.querySelector('.map__pin');
 var imagePin = similarPinTemplate.querySelector('img');
 var similarPinsList = map.querySelector('.map__pins');
+var similarCardTemplate = template.content.querySelector('.map__card');
 
 var pinOffset = {
   x: imagePin.height + PIN_HEIGHT,
@@ -208,3 +213,43 @@ for (var i = 0; i < cards.length; i++) {
 }
 similarPinsList.appendChild(fragmentPin);
 
+
+
+// На основе первого по порядку элемента из сгенерированного массива
+//  и шаблона template article.map__card создайте DOM-элемент объявления,
+//  заполните его данными из объекта и вставьте полученный DOM-элемент в блок .map
+//  перед блоком .map__filters-container:
+var renderCard = function (card) {
+  var cardElement = similarCardTemplate.cloneNode(true);
+  debugger;
+  cardElement.querySelector('h3').textContent = card.offer.title;
+  cardElement.querySelector('p small').textContent = card.offer.address;
+  cardElement.querySelector('.popup__price').textContent = card.offer.price + ' \u20bd/ночь';
+  cardElement.querySelector('h4').textContent = TYPE_OF_ACCOMODATION[card.offer.type];
+  cardElement.querySelector('h4 + p').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+  cardElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
+  var ulFeatures = cardElement.querySelector('.popup__features');
+  ulFeatures.innerHTML = '';
+  var features = card.offer.features;
+  features.forEach(function (feature) {
+    var featureElement = document.createElement('li');
+    featureElement.classList.add('feature', 'feature--' + feature);
+    ulFeatures.appendChild(featureElement);
+  });
+  cardElement.querySelector('ul + p').textContent = card.offer.description;
+  cardElement.querySelector('.popup__avatar').src = card.author.avatar;
+
+  // var ulPictures = cardElement.querySelector('.popup__pictures').content;
+  // photos.forEach(function (photo) {
+  //   var photoElement =
+  // })
+  // ulPictures.querySelector('img').src = card.offer.photos;
+  return cardElement;
+};
+
+var fragmentCard = document.createDocumentFragment();
+for (var i = 0; i < cards.length; i++) {
+  fragmentCard.appendChild(renderCard(cards[i]));
+}
+
+map.insertBefore(fragmentCard, mapFilters);
