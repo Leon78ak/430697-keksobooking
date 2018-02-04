@@ -211,9 +211,8 @@ var fragmentPin = document.createDocumentFragment();
 for (var i = 0; i < cards.length; i++) {
   fragmentPin.appendChild(renderPin(cards[i]));
 }
+
 similarPinsList.appendChild(fragmentPin);
-
-
 
 // На основе первого по порядку элемента из сгенерированного массива
 //  и шаблона template article.map__card создайте DOM-элемент объявления,
@@ -229,8 +228,8 @@ var renderCard = function (card) {
   cardElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   var ulFeatures = cardElement.querySelector('.popup__features');
   ulFeatures.innerHTML = '';
-  var features = card.offer.features;
-  features.forEach(function (feature) {
+  var cardFeatures = card.offer.features;
+  cardFeatures.forEach(function (feature) {
     var featureElement = document.createElement('li');
     featureElement.classList.add('feature', 'feature--' + feature);
     ulFeatures.appendChild(featureElement);
@@ -247,8 +246,8 @@ var renderCard = function (card) {
 };
 
 var fragmentCard = document.createDocumentFragment();
-for (var i = 0; i < cards.length; i++) {
-  fragmentCard.appendChild(renderCard(cards[i]));
-}
+cards.forEach(function (card) {
+  fragmentCard.appendChild(renderCard(card));
+});
 
 map.insertBefore(fragmentCard, mapFilters);
