@@ -144,7 +144,7 @@ var getRandomShuffleArray = function (array) {
 /**
  * функция для создания массива объектов объявлений
  * @param  {number} usersNumb количество пользователей
- * @return {array}
+ * @return {array.<Object>}
  */
 var createNotices = function (usersNumb) {
   var arrayUsersNumbers = createArrayOfNumbers(1, usersNumb);
@@ -183,7 +183,7 @@ var createNotices = function (usersNumb) {
   return notices;
 };
 
-var cards = createNotices(8);
+var data = createNotices(8);
 
 var map = document.querySelector('.map');
 var mapFilters = map.querySelector('.map__filters-container');
@@ -199,7 +199,7 @@ var pinOffset = {
   y: imagePin.width / 2
 };
 
-var renderPin = function (pin) {
+var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
   pinElement.style = 'left: ' + (pin.location.x + pinOffset.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
@@ -207,18 +207,27 @@ var renderPin = function (pin) {
   return pinElement;
 };
 
-var fragmentPin = document.createDocumentFragment();
-for (var i = 0; i < cards.length; i++) {
-  fragmentPin.appendChild(renderPin(cards[i]));
-}
+/**
+ * отрисовывает метку
+ * @param {array.<Object>} pins
+ * @return {[type]}      [description]
+ */
+var renderPin = function (pins) {
+  var fragmentPin = document.createDocumentFragment();
+  pins.forEach(function (pin) {
+    fragmentPin.appendChild(getPinFromTemplate(pin));
+  });
+  return fragmentPin;
+};
 
-similarPinsList.appendChild(fragmentPin);
+similarPinsList.appendChild(renderPin(data));
 
-// На основе первого по порядку элемента из сгенерированного массива
-//  и шаблона template article.map__card создайте DOM-элемент объявления,
-//  заполните его данными из объекта и вставьте полученный DOM-элемент в блок .map
-//  перед блоком .map__filters-container:
-var renderCard = function (card) {
+/**
+ * получает элемент из шаблона
+ * @param  {[type]} card [description]
+ * @return {[type]}      [description]
+ */
+var getCardFromTemplate = function (card) {
   var cardElement = similarCardTemplate.cloneNode(true);
   cardElement.querySelector('h3').textContent = card.offer.title;
   cardElement.querySelector('p small').textContent = card.offer.address;
@@ -245,9 +254,17 @@ var renderCard = function (card) {
   return cardElement;
 };
 
-var fragmentCard = document.createDocumentFragment();
-cards.forEach(function (card) {
-  fragmentCard.appendChild(renderCard(card));
-});
+/**
+ * отрисовывавет список карточек на страницу
+ * @param  {array.<Object>} cards
+ * @return фрагмент для вставки
+ */
+var renderCards = function (cards) {
+  var fragmentCard = document.createDocumentFragment();
+  cards.forEach(function (card) {
+    fragmentCard.appendChild(getCardFromTemplate(card));
+  });
+  return fragmentCard;
+};
 
-map.insertBefore(fragmentCard, mapFilters);
+map.insertBefore(renderCards(data), mapFilters);
