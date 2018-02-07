@@ -1,6 +1,6 @@
 'use strict';
 
-var TITLE = [
+var TITLES = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
   'Огромный прекрасный дворец',
@@ -11,15 +11,15 @@ var TITLE = [
   'Неуютное бунгало по колено в воде'
 ];
 
-var title = TITLE.slice(0);
+var titles = TITLES.slice(0);
 
-var TYPE_OF_ACCOMODATION = {
+var TYPES_OF_ACCOMODATION = {
   flat: 'Квартира',
   house: 'Дом',
   bungalo: 'Бунгало'
 };
 
-var CHECK_TIME = [
+var CHECK_TIMES = [
   '12:00',
   '13:00',
   '14:00'
@@ -33,8 +33,6 @@ var FEATURES = [
   'elevator',
   'conditioner'
 ];
-
-var features = FEATURES.slice(0);
 
 var PRICE_MIN = 1000;
 var PRICE_MAX = 1000000;
@@ -57,10 +55,10 @@ var PHOTOS = [
 
 var photos = PHOTOS.slice(0);
 
-var PIN_HEIGHT = 22;
+var PIN_ARROW_HEIGHT = 22;
 
 /**
- * возвращает случайное целое
+ * возвращает случайное целое в диапазоне от min до max
  * @param  {number} min
  * @param  {number} max
  * @return {number}
@@ -81,7 +79,7 @@ var getRandomArrayValue = function (array) {
 };
 
 /**
- * возвращает неповторяющееся случайное значение из переданного массива значений
+ * забирает неповторяющееся случайное значение из переданного массива значений
  * @param {array} array - массив значений
  * @return {string}
  */
@@ -160,15 +158,15 @@ var createNotices = function (usersNumb) {
       },
 
       offer: {
-        title: getRandomUniqueArrayValue(title),
+        title: getRandomUniqueArrayValue(titles),
         address: x + ', ' + y,
         price: getRandomInteger(PRICE_MIN, PRICE_MAX),
-        type: getRandomArrayValue(Object.keys(TYPE_OF_ACCOMODATION)),
+        type: getRandomArrayValue(Object.keys(TYPES_OF_ACCOMODATION)),
         rooms: getRandomInteger(MIN_ROOMS, MAX_ROOMS),
         guests: getRandomInteger(MIN_GUESTS, MAX_GUESTS),
-        checkin: getRandomArrayValue(CHECK_TIME),
-        checkout: getRandomArrayValue(CHECK_TIME),
-        features: getRandomShuffleArray(features),
+        checkin: getRandomArrayValue(CHECK_TIMES),
+        checkout: getRandomArrayValue(CHECK_TIMES),
+        features: getRandomShuffleArray(FEATURES),
         description: '',
         photos: getShuffleArray(photos)
       },
@@ -190,19 +188,17 @@ var mapFilters = map.querySelector('.map__filters-container');
 map.classList.remove('map--faded');
 var template = document.querySelector('template');
 var similarPinTemplate = template.content.querySelector('.map__pin');
-var imagePin = similarPinTemplate.querySelector('img');
 var similarPinsList = map.querySelector('.map__pins');
 var similarCardTemplate = template.content.querySelector('.map__card');
 
 var pinOffset = {
-  x: imagePin.height + PIN_HEIGHT,
-  y: imagePin.width / 2
+  y: similarPinTemplate.offsetHeight + PIN_ARROW_HEIGHT
 };
 
 var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
-  pinElement.style = 'left: ' + (pin.location.x + pinOffset.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
+  pinElement.style = 'left: ' + (pin.location.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
 
   return pinElement;
 };
@@ -232,7 +228,7 @@ var getCardFromTemplate = function (card) {
   cardElement.querySelector('h3').textContent = card.offer.title;
   cardElement.querySelector('p small').textContent = card.offer.address;
   cardElement.querySelector('.popup__price').textContent = card.offer.price + ' \u20bd/ночь';
-  cardElement.querySelector('h4').textContent = TYPE_OF_ACCOMODATION[card.offer.type];
+  cardElement.querySelector('h4').textContent = TYPES_OF_ACCOMODATION[card.offer.type];
   cardElement.querySelector('h4 + p').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
   cardElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   var ulFeatures = cardElement.querySelector('.popup__features');
@@ -246,11 +242,19 @@ var getCardFromTemplate = function (card) {
   cardElement.querySelector('ul + p').textContent = card.offer.description;
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
 
-  // var ulPictures = cardElement.querySelector('.popup__pictures');
-  // photos.forEach(function (photo) {
-  //   var photoElement =
-  // })
-  // ulPictures.querySelector('img').src = card.offer.photos;
+  var ulPictures = cardElement.querySelector('.popup__pictures');
+  ulPictures.innerHTML = '';
+  var cardPhotos = card.offer.photos;
+  cardPhotos.forEach(function (photo) {
+    var photoElement = document.createElement('li');
+    var urlPhotoElement = document.createElement('img');
+    urlPhotoElement.src = photo;
+    urlPhotoElement.width = '70';
+    urlPhotoElement.height = '70';
+    photoElement.appendChild(urlPhotoElement);
+    ulPictures.appendChild(photoElement);
+  });
+
   return cardElement;
 };
 
