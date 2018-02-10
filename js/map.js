@@ -427,8 +427,21 @@ map.addEventListener('click', function (evt) {
   }
 });
 
-document.addEventListener('keydown', function (evt) {
+// закрытие попапа при фокусе на крестике клавишей ENTER
+map.addEventListener('keydown', function (evt) {
+  var target = evt.target;
+
+  if (target && target.className === 'popup__close') {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closePopup();
+    }
+  }
+});
+
+var onPopupEscPress = function (evt) {
   if (evt.keyCode === ESC_KEYCODE) {
     closePopup();
   }
-});
+};
+
+document.addEventListener('keydown', onPopupEscPress);
