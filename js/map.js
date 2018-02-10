@@ -410,7 +410,6 @@ var closePopup = function () {
   for (var i = 0; i < map.children.length; i++) {
     if (map.children[i].classList.contains('popup') && !map.children[i].classList.contains('hidden')) {
       var activePopup = map.children[i];
-      // map.removeChild(activePopup);
       activePopup.classList.add('hidden');
 
       activePin.classList.remove('map__pin--active');
@@ -445,3 +444,62 @@ var onPopupEscPress = function (evt) {
 };
 
 document.addEventListener('keydown', onPopupEscPress);
+
+var noticeForm = document.querySelector('.notice__form');
+var timeIn = noticeForm.querySelector('#timein');
+var timeOut = noticeForm.querySelector('#timeout');
+var typeOfAccomodation = noticeForm.querySelector('#type');
+var price = noticeForm.querySelector('#price');
+var roomNumber = noticeForm.querySelector('#room_number');
+var capacity = noticeForm.querySelector('#capacity');
+var capacitys = capacity.options;
+var roomNumbers = roomNumber.options;
+
+var TYPE_TO_PRICE = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
+timeIn.addEventListener('change', function (evt) {
+  timeOut.value = evt.target.value;
+});
+
+timeOut.addEventListener('change', function (evt) {
+  timeIn.value = evt.target.value;
+});
+
+var syncPrice = function () {
+  var selectedField = typeOfAccomodation.value;
+  price.min = TYPE_TO_PRICE[selectedField];
+};
+
+typeOfAccomodation.addEventListener('change', function () {
+  syncPrice();
+});
+
+// capacity.disabled = true;
+
+var roomNumberSync = function () {
+      Array.from(capacitys).filter(function(capacity) {
+      capacity.disabled = true;
+       if (capacity.value <= roomNumber.value && capacity.value !== '0') {
+          if (capacity.value === roomNumber.value) {
+            capacity.selected = true;
+          }
+          capacity.disabled = false;
+        }
+        if (roomNumber.value === '100') {
+          capacity.selectedIndex = -1;
+          capacity.value = '0';
+          capacity.selected = true;
+          // capacity.disabled = false;
+        }
+        // else {
+        //   capacity.disabled = true;
+        // }
+      });
+  };
+
+roomNumber.addEventListener('change', roomNumberSync);
