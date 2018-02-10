@@ -1,5 +1,8 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
 var TITLES = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
@@ -55,7 +58,7 @@ var PHOTOS = [
 
 var photos = PHOTOS.slice(0);
 
-var PIN_ARROW_HEIGHT = 22;
+var PIN_ARROW_HEIGHT = 16;
 
 /**
  * возвращает случайное целое в диапазоне от min до max
@@ -125,7 +128,7 @@ var getShuffleArray = function (array) {
 };
 
 /**
- * выбирает случайное число случайных значений массива
+ * забирает случайное число случайных значений массива
  * @param  {array} array массив занчений
  * @return {array}       отсортированный массив
  */
@@ -185,7 +188,6 @@ var data = createNotices(8);
 
 var map = document.querySelector('.map');
 var mapFilters = map.querySelector('.map__filters-container');
-map.classList.remove('map--faded');
 var template = document.querySelector('template');
 var similarPinTemplate = template.content.querySelector('.map__pin');
 var similarPinsList = map.querySelector('.map__pins');
@@ -195,6 +197,11 @@ var pinOffset = {
   y: similarPinTemplate.offsetHeight + PIN_ARROW_HEIGHT
 };
 
+/**
+ * получает элемент метка из шаблона
+ * @param  {Object} pin объект данных
+ * @return {Element}
+ */
 var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
@@ -220,8 +227,8 @@ similarPinsList.appendChild(renderPin(data));
 
 /**
  * получает элемент из шаблона
- * @param  {[type]} card [description]
- * @return {[type]}      [description]
+ * @param  {Object} card объект данных
+ * @return {Element}
  */
 var getCardFromTemplate = function (card) {
   var cardElement = similarCardTemplate.cloneNode(true);
@@ -261,7 +268,7 @@ var getCardFromTemplate = function (card) {
 /**
  * отрисовывавет список карточек на страницу
  * @param  {array.<Object>} cards
- * @return фрагмент для вставки
+ * @return {Element} фрагмент для вставки
  */
 var renderCards = function (cards) {
   var fragmentCard = document.createDocumentFragment();
@@ -272,3 +279,156 @@ var renderCards = function (cards) {
 };
 
 map.insertBefore(renderCards(data), mapFilters);
+
+
+// module4
+
+var mapPinMain = map.querySelector('.map__pin--main');
+var mapPin = map.querySelectorAll('.map__pin');
+var noticeForm = document.querySelector('.notice__form');
+var addressField = noticeForm.querySelector('#address');
+var popup = map.querySelectorAll('.popup');
+
+
+// координаты главной метки по умолчанию
+var initAddressCoords = {
+  x: Math.floor(mapPinMain.offsetTop + mapPinMain.offsetHeight / 2 + PIN_ARROW_HEIGHT),
+  y: Math.floor(map.offsetWidth / 2)
+};
+
+/**
+ * деактивация страницы
+ */
+var deactivatePage = function () {
+  // устанавливаем значения адресного поля по умолчанию
+  addressField.value = 'x: ' + initAddressCoords.x + ' y: ' + initAddressCoords.y;
+
+  // скроем метки похожих объявлений
+  for (var i = 0; i < mapPin.length; i++) {
+    if (!mapPin[i].classList.contains('map__pin--main')) {
+      mapPin[i].classList.add('hidden');
+    }
+  }
+  // скроем отрисованные попапы
+  for (i = 0; i < popup.length; i++) {
+    popup[i].classList.add('hidden');
+  }
+};
+
+deactivatePage();
+
+/**
+ * активирует форму на странице
+ */
+var initForm = function () {
+  noticeForm.classList.remove('notice__form--disabled');
+  for (var i = 0; i < noticeForm.children.length; i++) {
+    if (noticeForm.children[i].nodeType === 1) {
+      noticeForm.children[i].disabled = false;
+    }
+  }
+};
+
+/**
+ * показывает метки на карте при инициализации страницы
+ */
+var showPins = function () {
+  for (var i = 0; i < mapPin.length; i++) {
+    if (mapPin[i].classList.contains('hidden')) {
+      mapPin[i].classList.remove('hidden');
+    }
+  }
+};
+
+/**
+ * активирует страницу
+ */
+var initPage = function () {
+  map.classList.remove('map--faded');
+
+  initForm();
+
+  showPins();
+};
+
+/**
+ * обработчик события при отпускании мыши на главной метке страницы
+ * @param  {Object} evt
+ */
+var onMainPinMouseUp = function () {
+  initPage();
+
+  // вызов метода, который устанавливает значения поля ввода адреса?
+};
+
+mapPinMain.addEventListener('mouseup', onMainPinMouseUp);
+
+
+var activePin = null;
+/**
+  * обработчик события клика на метке
+  * @param  {Object} evt [description]
+  * @return {Element}    активную метку на карте
+  */
+var onPinClick = function (evt) {
+  // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+  }
+
+  activePin = evt.currentTarget;
+  activePin.classList.add('map__pin--active');
+  var srcPin = activePin.querySelector('img').getAttribute('src');
+
+  for (var i = 0; i < popup.length; i++) {
+    var srcPopup = popup[i].querySelector('img').getAttribute('src');
+    if (srcPin === srcPopup) {
+      if (popup[i].classList.contains('hidden')) {
+        popup[i].classList.remove('hidden');
+
+        return activePin;
+      }
+    }
+  }
+};
+
+/**
+ * показывает попап при клике на метке
+ */
+var openPopup = function () {
+  for (var i = 0; i < mapPin.length; i++) {
+    mapPin[i].addEventListener('click', onPinClick);
+  }
+};
+
+openPopup();
+
+/**
+ * скрывает попап
+ */
+var closePopup = function () {
+  for (var i = 0; i < map.children.length; i++) {
+    if (map.children[i].classList.contains('popup') && !map.children[i].classList.contains('hidden')) {
+      var activePopup = map.children[i];
+      // map.removeChild(activePopup);
+      activePopup.classList.add('hidden');
+
+      activePin.classList.remove('map__pin--active');
+      return;
+    }
+  }
+};
+
+map.addEventListener('click', function (evt) {
+  var target = evt.target;
+
+  if (target && target.className === 'popup__close') {
+    closePopup();
+  }
+});
+
+document.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+});
