@@ -285,7 +285,6 @@ var mapPin = map.querySelectorAll('.map__pin');
 var pinsContainer = map.querySelector('.map__pins');
 var noticeForm = document.querySelector('.notice__form');
 var addressField = noticeForm.querySelector('#address');
-var popup = map.querySelectorAll('.popup');
 
 // координаты главной метки по умолчанию
 var initAddressCoords = {
@@ -360,7 +359,6 @@ mapPinMain.addEventListener('mouseup', onMainPinMouseUp);
  * проверяет наступление события при нажатии клавиши Esc
  * @param  {Object}  evt    объект события
  * @param  {Function} action функция действия при наступлении события
- * @return {Boolean}        [description]
  */
 var isEscEvent = function (evt, action) {
   if (evt.keyCode === ESC_KEYCODE) {
@@ -372,7 +370,6 @@ var isEscEvent = function (evt, action) {
  * проверяет наступление события при нажатии клавиши Enter
  * @param  {Object}  evt    объект события
  * @param  {Function} action функция действия при наступлении события
- * @return {Boolean}        [description]
  */
 var isEnterEvent = function (evt, action) {
   if (evt.keyCode === ENTER_KEYCODE) {
@@ -383,17 +380,16 @@ var isEnterEvent = function (evt, action) {
 var activePin = null;
 /**
   * обработчик события клика на метке
-  * @param  {Object} evt [description]
-  * @return {Element}    активную метку на карте
+  * @param  {Element}  pin метка с событием
   */
-var onPinClick = function (node) {
+var onPinClick = function (pin) {
   // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
   if (activePin) {
     activePin.classList.remove('map__pin--active');
     closePopup();
   }
 
-  activePin = node;
+  activePin = pin;
   activePin.classList.add('map__pin--active');
 
   openPopup();
@@ -416,7 +412,6 @@ pinsContainer.addEventListener('click', function (evt) {
       onPinClick(target);
 
       document.addEventListener('keydown', function (evtKeydown) {
-        debugger;
         isEscEvent(evtKeydown, closePopup);
       });
       return;
@@ -443,23 +438,17 @@ var closePopup = function () {
 /**
  * обработчик при нажатии enter на кнопке закрытия попапа
  * @param  {[type]} evt [description]
- * @return {[type]}     [description]
  */
 var onPopupKeydownPress = function (evt) {
   var target = evt.target;
 
   if (target && target.className === 'popup__close') {
     isEnterEvent(evt, closePopup);
-  };
+  }
 };
 
 map.addEventListener('keydown', onPopupKeydownPress, true);
 
-
-
-
-
-var noticeForm = document.querySelector('.notice__form');
 var timeIn = noticeForm.querySelector('#timein');
 var timeOut = noticeForm.querySelector('#timeout');
 var typeOfAccomodation = noticeForm.querySelector('#type');
@@ -506,7 +495,6 @@ typeOfAccomodation.addEventListener('change', syncPrice);
 // roomNumber.addEventListener('change', syncRooms);
 
 var roomNumberSync = function () {
-  debugger;
   Array.from(capacitys).filter(function(capacity) {
     capacity.disabled = true;
     if (capacity.value <= roomNumber.value && capacity.value !== '0') {
