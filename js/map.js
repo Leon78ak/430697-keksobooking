@@ -206,7 +206,8 @@ var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
   pinElement.style = 'left: ' + (pin.location.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
-
+  // pinElement.setAttribute('id', ;
+  // console.log(pinElement.id);
   return pinElement;
 };
 
@@ -266,29 +267,25 @@ var getCardFromTemplate = function (card) {
 };
 
 /**
- * отрисовывавет список карточек на страницу
- * @param  {array.<Object>} cards
+ * отрисовывавет карточку на страницу
+ * @param  {array.<Object>} объект с данными из массива
  * @return {Element} фрагмент для вставки
  */
-var renderCards = function (cards) {
+var renderCard = function (card) {
   var fragmentCard = document.createDocumentFragment();
-  cards.forEach(function (card) {
-    fragmentCard.appendChild(getCardFromTemplate(card));
-  });
+  fragmentCard.appendChild(getCardFromTemplate(card));
+
   return fragmentCard;
 };
-
-map.insertBefore(renderCards(data), mapFilters);
-
 
 // module4
 
 var mapPinMain = map.querySelector('.map__pin--main');
 var mapPin = map.querySelectorAll('.map__pin');
+var pinsContainer = map.querySelector('.map__pins');
 var noticeForm = document.querySelector('.notice__form');
 var addressField = noticeForm.querySelector('#address');
 var popup = map.querySelectorAll('.popup');
-
 
 // координаты главной метки по умолчанию
 var initAddressCoords = {
@@ -308,10 +305,6 @@ var deactivatePage = function () {
     if (!mapPin[i].classList.contains('map__pin--main')) {
       mapPin[i].classList.add('hidden');
     }
-  }
-  // скроем отрисованные попапы
-  for (i = 0; i < popup.length; i++) {
-    popup[i].classList.add('hidden');
   }
 };
 
@@ -363,6 +356,29 @@ var onMainPinMouseUp = function () {
 
 mapPinMain.addEventListener('mouseup', onMainPinMouseUp);
 
+/**
+ * проверяет наступление события при нажатии клавиши Esc
+ * @param  {Object}  evt    объект события
+ * @param  {Function} action функция действия при наступлении события
+ * @return {Boolean}        [description]
+ */
+var isEscEvent = function (evt, action) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    action();
+  }
+};
+
+/**
+ * проверяет наступление события при нажатии клавиши Enter
+ * @param  {Object}  evt    объект события
+ * @param  {Function} action функция действия при наступлении события
+ * @return {Boolean}        [description]
+ */
+var isEnterEvent = function (evt, action) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    action();
+  }
+};
 
 var activePin = null;
 /**
@@ -370,47 +386,53 @@ var activePin = null;
   * @param  {Object} evt [description]
   * @return {Element}    активную метку на карте
   */
-var onPinClick = function (evt) {
+var onPinClick = function (node) {
   // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
   if (activePin) {
     activePin.classList.remove('map__pin--active');
+    closePopup();
   }
 
-  activePin = evt.currentTarget;
+  activePin = node;
   activePin.classList.add('map__pin--active');
-  var srcPin = activePin.querySelector('img').getAttribute('src');
 
-  for (var i = 0; i < popup.length; i++) {
-    var srcPopup = popup[i].querySelector('img').getAttribute('src');
-    if (srcPin === srcPopup) {
-      if (popup[i].classList.contains('hidden')) {
-        popup[i].classList.remove('hidden');
-
-        return activePin;
-      }
-    }
-  }
+  openPopup();
 };
 
 /**
  * показывает попап при клике на метке
  */
 var openPopup = function () {
-  for (var i = 0; i < mapPin.length; i++) {
-    mapPin[i].addEventListener('click', onPinClick);
-  }
+  var index = Array.from(mapPin).indexOf(activePin);
+
+  map.insertBefore(renderCard(data[index - 1]), mapFilters);
 };
 
-openPopup();
+// делегируем обработку клика на пине на блок .map__pins
+pinsContainer.addEventListener('click', function (evt) {
+  var target = evt.target;
+  while (target !== pinsContainer) {
+    if (target.className === 'map__pin') {
+      onPinClick(target);
+
+      document.addEventListener('keydown', function (evtKeydown) {
+        debugger;
+        isEscEvent(evtKeydown, closePopup);
+      });
+      return;
+    }
+    target = target.parentNode;
+  }
+});
 
 /**
  * скрывает попап
  */
 var closePopup = function () {
   for (var i = 0; i < map.children.length; i++) {
-    if (map.children[i].classList.contains('popup') && !map.children[i].classList.contains('hidden')) {
+    if (map.children[i].classList.contains('popup')) {
       var activePopup = map.children[i];
-      activePopup.classList.add('hidden');
+      map.removeChild(activePopup);
 
       activePin.classList.remove('map__pin--active');
       return;
@@ -418,32 +440,24 @@ var closePopup = function () {
   }
 };
 
-map.addEventListener('click', function (evt) {
+/**
+ * обработчик при нажатии enter на кнопке закрытия попапа
+ * @param  {[type]} evt [description]
+ * @return {[type]}     [description]
+ */
+var onPopupKeydownPress = function (evt) {
   var target = evt.target;
 
   if (target && target.className === 'popup__close') {
-    closePopup();
-  }
-});
-
-// закрытие попапа при фокусе на крестике клавишей ENTER
-map.addEventListener('keydown', function (evt) {
-  var target = evt.target;
-
-  if (target && target.className === 'popup__close') {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      closePopup();
-    }
-  }
-});
-
-var onPopupEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    closePopup();
-  }
+    isEnterEvent(evt, closePopup);
+  };
 };
 
-document.addEventListener('keydown', onPopupEscPress);
+map.addEventListener('keydown', onPopupKeydownPress, true);
+
+
+
+
 
 var noticeForm = document.querySelector('.notice__form');
 var timeIn = noticeForm.querySelector('#timein');
@@ -475,31 +489,38 @@ var syncPrice = function () {
   price.min = TYPE_TO_PRICE[selectedField];
 };
 
-typeOfAccomodation.addEventListener('change', function () {
-  syncPrice();
-});
+typeOfAccomodation.addEventListener('change', syncPrice);
 
-// capacity.disabled = true;
+// var ROOMS_TO_CAPACITY = {
+//   '1': '1',
+//   '2': '2',
+//   '3': '3',
+//   '100': '0'
+// };
+
+// syncRooms = function () {
+//   var selectedField = roomNumber.value;
+//   capacity.value = ROOMS_TO_CAPACITY[selectedField];
+// };
+
+// roomNumber.addEventListener('change', syncRooms);
 
 var roomNumberSync = function () {
-      Array.from(capacitys).filter(function(capacity) {
-      capacity.disabled = true;
-       if (capacity.value <= roomNumber.value && capacity.value !== '0') {
-          if (capacity.value === roomNumber.value) {
-            capacity.selected = true;
-          }
-          capacity.disabled = false;
-        }
-        if (roomNumber.value === '100') {
-          capacity.selectedIndex = -1;
-          capacity.value = '0';
-          capacity.selected = true;
-          // capacity.disabled = false;
-        }
-        // else {
-        //   capacity.disabled = true;
-        // }
-      });
-  };
+  debugger;
+  Array.from(capacitys).filter(function(capacity) {
+    capacity.disabled = true;
+    if (capacity.value <= roomNumber.value && capacity.value !== '0') {
+      if (capacity.value === roomNumber.value) {
+        capacity.selected = true;
+      }
+      capacity.disabled = false;
+    }
+    // if (roomNumber.value === '100') {
+    //   capacity.value = '0';
+    //   capacity.selected = true;
+    //   // capacity.disabled = false;
+    // }
+  });
+};
 
 roomNumber.addEventListener('change', roomNumberSync);
