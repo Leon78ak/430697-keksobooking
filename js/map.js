@@ -56,6 +56,13 @@ var PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
+var TYPE_TO_PRICE = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 var photos = PHOTOS.slice(0);
 
 var PIN_ARROW_HEIGHT = 16;
@@ -412,6 +419,23 @@ var openPopup = function () {
   map.insertBefore(renderCard(data[index - 1]), mapFilters);
 };
 
+/**
+ * скрывает попап
+ */
+var closePopup = function () {
+  for (var i = 0; i < map.children.length; i++) {
+    if (map.children[i].classList.contains('popup')) {
+      var activePopup = map.children[i];
+      map.removeChild(activePopup);
+
+      activePin.classList.remove('map__pin--active');
+      return;
+    }
+  }
+};
+
+
+
 // делегируем обработку клика на пине на блок .map__pins
 pinsContainer.addEventListener('click', function (evt) {
   var target = evt.target;
@@ -428,20 +452,7 @@ pinsContainer.addEventListener('click', function (evt) {
   }
 });
 
-/**
- * скрывает попап
- */
-var closePopup = function () {
-  for (var i = 0; i < map.children.length; i++) {
-    if (map.children[i].classList.contains('popup')) {
-      var activePopup = map.children[i];
-      map.removeChild(activePopup);
 
-      activePin.classList.remove('map__pin--active');
-      return;
-    }
-  }
-};
 
 /**
  * обработчик при нажатии enter на кнопке закрытия попапа
@@ -454,6 +465,21 @@ var onPopupKeydownPress = function (evt) {
     isEnterEvent(evt, closePopup);
   }
 };
+
+/**
+ * обработчик при клике на кнопке закрытия попапа
+ * @param  {[type]} evt [description]
+ */
+var onPopupClick = function (evt) {
+  var target = evt.target;
+
+  if (target && target.className === 'popup__close') {
+    closePopup();
+  }
+};
+
+// //закрытие попапа при клике на крестике
+map.addEventListener('click', onPopupClick);
 
 map.addEventListener('keydown', onPopupKeydownPress, true);
 
@@ -468,13 +494,6 @@ var capacitys = capacity.options;
 var roomNumbers = roomNumber.options;
 var formSubmit = noticeForm.querySelector('.form__submit');
 
-var TYPE_TO_PRICE = {
-  bungalo: 0,
-  flat: 1000,
-  house: 5000,
-  palace: 10000
-};
-
 timeIn.addEventListener('change', function (evt) {
   timeOut.value = evt.target.value;
 });
@@ -483,6 +502,9 @@ timeOut.addEventListener('change', function (evt) {
   timeIn.value = evt.target.value;
 });
 
+/**
+ * синхронизирует тип жилья с минимальной ценой
+ */
 var syncPrice = function () {
   var selectedField = typeOfAccomodation.value;
   price.min = TYPE_TO_PRICE[selectedField];
@@ -490,60 +512,83 @@ var syncPrice = function () {
 
 typeOfAccomodation.addEventListener('change', syncPrice);
 
-// var ROOMS_TO_CAPACITY = {
-//   '1': '1',
-//   '2': '2',
-//   '3': '3',
-//   '100': '0'
-// };
+// соответствие value комнат количеству гостей
+var ROOMS_TO_CAPACITY = {
+  '1': '1',
+  '2': '2',
+  '3': '3',
+  '100': '0'
+};
 
-// syncRooms = function () {
-//   var selectedField = roomNumber.value;
-//   capacity.value = ROOMS_TO_CAPACITY[selectedField];
-// };
+/**
+ * синхронизирует значение поля выбора комнат со значением поля количества гостей
+ * @return {string} значение поля выбора количества гостей
+ */
+var syncRooms = function () {
+  var roomNumbers = roomNumber.value;
+  var capacityValue = ROOMS_TO_CAPACITY[roomNumbers];
 
-// roomNumber.addEventListener('change', syncRooms);
+  return capacityValue;
+};
 
+// значения для создания новых элементов выбора гостей
+var CAPACITY_VALUE_TEXT = {
+  1: 'для 1 гостя',
+  2: 'для 2 гостей',
+  3: 'для 3 гостей',
+  0: 'не для гостей'
+};
+
+/**
+ * создает новые опции для селекта
+ */
+var createNewOption = function (val, txt, select) {
+  var newOption = document.createElement('OPTION');
+  newOption.value = val;
+  newOption.text = txt;
+  select.add(newOption);
+};
+
+/**
+ * синхронизирует поля выбора комнат с количеством гостей
+ * @return {[type]} [description]
+ */
 var roomNumberSync = function () {
-   if (roomNumber.value === '100') {
-      capacity.value = '0';
-
-    } else {
-      Array.from(capacitys).forEach(function (capacity) {
-    capacity.disabled = true;
-    if (capacity.value <= roomNumber.value && capacity.value !== '0') {
-      if (capacity.value === roomNumber.value) {
-        capacity.selected = true;
-      }
-      capacity.disabled = false;
+  var selectedValue = syncRooms();
+  capacity.length = 0;
+  for (var value in CAPACITY_VALUE_TEXT) {
+    if (value <= selectedValue && value !== '0') {
+      createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
     }
-  });
+    if (selectedValue === '0') {
+      createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
+
+      return;
     }
-
-
+  }
 };
 
 roomNumber.addEventListener('change', roomNumberSync);
 
 
-
- var validateInput = function (input) {
-    if (input.validity.tooShort) {
-      input.setCustomValidity('Заголовок должен состоять минимум из ' + input.getAttribute('minlength') + ' символов');
-    } else if (input.validity.tooLong) {
-      input.setCustomValidity('Заголовок должен состоять максимум из ' + input.getAttribute('maxlength') + ' символов');
-    } else if (input.validity.valueMissing) {
-      input.setCustomValidity('Обязательное поле');
-    } else if (input.validity.rangeUnderflow) {
-      input.setCustomValidity('Минимальное значение цены ' + input.getAttribute('min'));
-    } else if (input.validity.tooLong) {
-      input.setCustomValidity('Максимальное значение цены ' + input.getAttribute('max'));
-    } else {
-      input.setCustomValidity('');
-    }
+var validateInput = function (input) {
+  if (input.validity.tooShort) {
+    input.setCustomValidity('Заголовок должен состоять минимум из ' + input.getAttribute('minlength') + ' символов');
+  } else if (input.validity.tooLong) {
+    input.setCustomValidity('Заголовок должен состоять максимум из ' + input.getAttribute('maxlength') + ' символов');
+  } else if (input.validity.valueMissing) {
+    input.setCustomValidity('Обязательное поле');
+  } else if (input.validity.rangeUnderflow) {
+    input.setCustomValidity('Минимальное значение цены ' + input.getAttribute('min'));
+  } else if (input.validity.tooLong) {
+    input.setCustomValidity('Максимальное значение цены ' + input.getAttribute('max'));
+  } else {
+    input.setCustomValidity('');
   }
+}
 
-  titleField.addEventListener('invalid', function () {
-    validateInput(titleField);
-  });
+titleField.addEventListener('invalid', function () {
+  validateInput(titleField);
+});
+
 
