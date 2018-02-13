@@ -319,6 +319,14 @@ var initForm = function () {
       noticeForm.children[i].disabled = false;
     }
   }
+  // опции количества мест кроме значения '1 комната' делаем недоступными
+  Array.from(capacitys).filter(function (capacity) {
+    if (capacity.value === '1') {
+      capacity.disabled = false;
+    } else {
+      capacity.disabled = true;
+    }
+  });
 };
 
 /**
@@ -380,16 +388,16 @@ var isEnterEvent = function (evt, action) {
 var activePin = null;
 /**
   * обработчик события клика на метке
-  * @param  {Element}  pin метка с событием
+  * @param  {Element}  node метка с событием
   */
-var onPinClick = function (pin) {
+var onPinClick = function (node) {
   // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
   if (activePin) {
     activePin.classList.remove('map__pin--active');
     closePopup();
   }
 
-  activePin = pin;
+  activePin = node;
   activePin.classList.add('map__pin--active');
 
   openPopup();
@@ -449,6 +457,7 @@ var onPopupKeydownPress = function (evt) {
 
 map.addEventListener('keydown', onPopupKeydownPress, true);
 
+var titleField = noticeForm.querySelector('#title');
 var timeIn = noticeForm.querySelector('#timein');
 var timeOut = noticeForm.querySelector('#timeout');
 var typeOfAccomodation = noticeForm.querySelector('#type');
@@ -457,6 +466,7 @@ var roomNumber = noticeForm.querySelector('#room_number');
 var capacity = noticeForm.querySelector('#capacity');
 var capacitys = capacity.options;
 var roomNumbers = roomNumber.options;
+var formSubmit = noticeForm.querySelector('.form__submit');
 
 var TYPE_TO_PRICE = {
   bungalo: 0,
@@ -495,7 +505,11 @@ typeOfAccomodation.addEventListener('change', syncPrice);
 // roomNumber.addEventListener('change', syncRooms);
 
 var roomNumberSync = function () {
-  Array.from(capacitys).filter(function(capacity) {
+   if (roomNumber.value === '100') {
+      capacity.value = '0';
+
+    } else {
+      Array.from(capacitys).forEach(function (capacity) {
     capacity.disabled = true;
     if (capacity.value <= roomNumber.value && capacity.value !== '0') {
       if (capacity.value === roomNumber.value) {
@@ -503,12 +517,33 @@ var roomNumberSync = function () {
       }
       capacity.disabled = false;
     }
-    // if (roomNumber.value === '100') {
-    //   capacity.value = '0';
-    //   capacity.selected = true;
-    //   // capacity.disabled = false;
-    // }
   });
+    }
+
+
 };
 
 roomNumber.addEventListener('change', roomNumberSync);
+
+
+
+ var validateInput = function (input) {
+    if (input.validity.tooShort) {
+      input.setCustomValidity('Заголовок должен состоять минимум из ' + input.getAttribute('minlength') + ' символов');
+    } else if (input.validity.tooLong) {
+      input.setCustomValidity('Заголовок должен состоять максимум из ' + input.getAttribute('maxlength') + ' символов');
+    } else if (input.validity.valueMissing) {
+      input.setCustomValidity('Обязательное поле');
+    } else if (input.validity.rangeUnderflow) {
+      input.setCustomValidity('Минимальное значение цены ' + input.getAttribute('min'));
+    } else if (input.validity.tooLong) {
+      input.setCustomValidity('Максимальное значение цены ' + input.getAttribute('max'));
+    } else {
+      input.setCustomValidity('');
+    }
+  }
+
+  titleField.addEventListener('invalid', function () {
+    validateInput(titleField);
+  });
+
