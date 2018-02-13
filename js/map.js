@@ -434,8 +434,6 @@ var closePopup = function () {
   }
 };
 
-
-
 // делегируем обработку клика на пине на блок .map__pins
 pinsContainer.addEventListener('click', function (evt) {
   var target = evt.target;
@@ -451,8 +449,6 @@ pinsContainer.addEventListener('click', function (evt) {
     target = target.parentNode;
   }
 });
-
-
 
 /**
  * обработчик при нажатии enter на кнопке закрытия попапа
@@ -480,7 +476,6 @@ var onPopupClick = function (evt) {
 
 // //закрытие попапа при клике на крестике
 map.addEventListener('click', onPopupClick);
-
 map.addEventListener('keydown', onPopupKeydownPress, true);
 
 var titleField = noticeForm.querySelector('#title');
@@ -491,7 +486,6 @@ var price = noticeForm.querySelector('#price');
 var roomNumber = noticeForm.querySelector('#room_number');
 var capacity = noticeForm.querySelector('#capacity');
 var capacitys = capacity.options;
-var roomNumbers = roomNumber.options;
 var formSubmit = noticeForm.querySelector('.form__submit');
 
 timeIn.addEventListener('change', function (evt) {
@@ -541,6 +535,9 @@ var CAPACITY_VALUE_TEXT = {
 
 /**
  * создает новые опции для селекта
+ * @param  {string} val    значение опции
+ * @param  {string} txt    текстовое значение
+ * @param  {Element} select селект
  */
 var createNewOption = function (val, txt, select) {
   var newOption = document.createElement('OPTION');
@@ -551,25 +548,25 @@ var createNewOption = function (val, txt, select) {
 
 /**
  * синхронизирует поля выбора комнат с количеством гостей
- * @return {[type]} [description]
  */
 var roomNumberSync = function () {
   var selectedValue = syncRooms();
   capacity.length = 0;
   for (var value in CAPACITY_VALUE_TEXT) {
-    if (value <= selectedValue && value !== '0') {
-      createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
-    }
-    if (selectedValue === '0') {
-      createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
+    if (CAPACITY_VALUE_TEXT.hasOwnProperty(value)) {
+      if (value <= selectedValue && value !== '0') {
+        createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
+      }
+      if (selectedValue === '0') {
+        createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
 
-      return;
+        return;
+      }
     }
   }
 };
 
 roomNumber.addEventListener('change', roomNumberSync);
-
 
 var validateInput = function (input) {
   if (input.validity.tooShort) {
@@ -585,10 +582,8 @@ var validateInput = function (input) {
   } else {
     input.setCustomValidity('');
   }
-}
+};
 
 titleField.addEventListener('invalid', function () {
   validateInput(titleField);
 });
-
-
