@@ -591,6 +591,6 @@ titleField.addEventListener('invalid', function () {
   validateInput(titleField);
 });
 
-priceInput.addEventListener('invalid', function () {
+price.addEventListener('invalid', function () {
   validateInput(price);
 });
