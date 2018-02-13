@@ -486,7 +486,6 @@ var price = noticeForm.querySelector('#price');
 var roomNumber = noticeForm.querySelector('#room_number');
 var capacity = noticeForm.querySelector('#capacity');
 var capacitys = capacity.options;
-var formSubmit = noticeForm.querySelector('.form__submit');
 
 timeIn.addEventListener('change', function (evt) {
   timeOut.value = evt.target.value;
@@ -568,6 +567,10 @@ var roomNumberSync = function () {
 
 roomNumber.addEventListener('change', roomNumberSync);
 
+/**
+ * валидация формы
+ * @param  {Element} input поле формы для валидации
+ */
 var validateInput = function (input) {
   if (input.validity.tooShort) {
     input.setCustomValidity('Заголовок должен состоять минимум из ' + input.getAttribute('minlength') + ' символов');
@@ -586,4 +589,8 @@ var validateInput = function (input) {
 
 titleField.addEventListener('invalid', function () {
   validateInput(titleField);
+});
+
+priceInput.addEventListener('invalid', function () {
+  validateInput(price);
 });
