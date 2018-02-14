@@ -213,8 +213,6 @@ var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
   pinElement.style = 'left: ' + (pin.location.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
-  // pinElement.setAttribute('id', ;
-  // console.log(pinElement.id);
   return pinElement;
 };
 
@@ -568,7 +566,7 @@ var roomNumberSync = function () {
 roomNumber.addEventListener('change', roomNumberSync);
 
 /**
- * валидация формы
+ * проверяет валидность поля формы
  * @param  {Element} input поле формы для валидации
  */
 var validateInput = function (input) {
