@@ -56,6 +56,13 @@ var PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
+var TYPE_TO_PRICE = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 var photos = PHOTOS.slice(0);
 
 var PIN_ARROW_HEIGHT = 16;
@@ -206,7 +213,8 @@ var getPinFromTemplate = function (pin) {
   var pinElement = similarPinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = pin.author.avatar;
   pinElement.style = 'left: ' + (pin.location.x) + 'px; top:' + (pin.location.y + pinOffset.y) + 'px;';
-
+  // pinElement.setAttribute('id', ;
+  // console.log(pinElement.id);
   return pinElement;
 };
 
@@ -266,29 +274,24 @@ var getCardFromTemplate = function (card) {
 };
 
 /**
- * отрисовывавет список карточек на страницу
- * @param  {array.<Object>} cards
+ * отрисовывавет карточку на страницу
+ * @param  {array.<Object>} объект с данными из массива
  * @return {Element} фрагмент для вставки
  */
-var renderCards = function (cards) {
+var renderCard = function (card) {
   var fragmentCard = document.createDocumentFragment();
-  cards.forEach(function (card) {
-    fragmentCard.appendChild(getCardFromTemplate(card));
-  });
+  fragmentCard.appendChild(getCardFromTemplate(card));
+
   return fragmentCard;
 };
-
-map.insertBefore(renderCards(data), mapFilters);
-
 
 // module4
 
 var mapPinMain = map.querySelector('.map__pin--main');
 var mapPin = map.querySelectorAll('.map__pin');
+var pinsContainer = map.querySelector('.map__pins');
 var noticeForm = document.querySelector('.notice__form');
 var addressField = noticeForm.querySelector('#address');
-var popup = map.querySelectorAll('.popup');
-
 
 // координаты главной метки по умолчанию
 var initAddressCoords = {
@@ -309,10 +312,6 @@ var deactivatePage = function () {
       mapPin[i].classList.add('hidden');
     }
   }
-  // скроем отрисованные попапы
-  for (i = 0; i < popup.length; i++) {
-    popup[i].classList.add('hidden');
-  }
 };
 
 deactivatePage();
@@ -327,6 +326,14 @@ var initForm = function () {
       noticeForm.children[i].disabled = false;
     }
   }
+  // опции количества мест кроме значения '1 комната' делаем недоступными
+  Array.from(capacitys).filter(function (capacity) {
+    if (capacity.value === '1') {
+      capacity.disabled = false;
+    } else {
+      capacity.disabled = true;
+    }
+  });
 };
 
 /**
@@ -363,55 +370,63 @@ var onMainPinMouseUp = function () {
 
 mapPinMain.addEventListener('mouseup', onMainPinMouseUp);
 
+/**
+ * проверяет наступление события при нажатии клавиши Esc
+ * @param  {Object}  evt    объект события
+ * @param  {Function} action функция действия при наступлении события
+ */
+var isEscEvent = function (evt, action) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    action();
+  }
+};
+
+/**
+ * проверяет наступление события при нажатии клавиши Enter
+ * @param  {Object}  evt    объект события
+ * @param  {Function} action функция действия при наступлении события
+ */
+var isEnterEvent = function (evt, action) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    action();
+  }
+};
 
 var activePin = null;
 /**
   * обработчик события клика на метке
-  * @param  {Object} evt [description]
-  * @return {Element}    активную метку на карте
+  * @param  {Element}  node метка с событием
   */
-var onPinClick = function (evt) {
+var onPinClick = function (node) {
   // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
   if (activePin) {
     activePin.classList.remove('map__pin--active');
+    closePopup();
   }
 
-  activePin = evt.currentTarget;
+  activePin = node;
   activePin.classList.add('map__pin--active');
-  var srcPin = activePin.querySelector('img').getAttribute('src');
 
-  for (var i = 0; i < popup.length; i++) {
-    var srcPopup = popup[i].querySelector('img').getAttribute('src');
-    if (srcPin === srcPopup) {
-      if (popup[i].classList.contains('hidden')) {
-        popup[i].classList.remove('hidden');
-
-        return activePin;
-      }
-    }
-  }
+  openPopup();
 };
 
 /**
  * показывает попап при клике на метке
  */
 var openPopup = function () {
-  for (var i = 0; i < mapPin.length; i++) {
-    mapPin[i].addEventListener('click', onPinClick);
-  }
-};
+  var index = Array.from(mapPin).indexOf(activePin);
 
-openPopup();
+  map.insertBefore(renderCard(data[index - 1]), mapFilters);
+};
 
 /**
  * скрывает попап
  */
 var closePopup = function () {
   for (var i = 0; i < map.children.length; i++) {
-    if (map.children[i].classList.contains('popup') && !map.children[i].classList.contains('hidden')) {
+    if (map.children[i].classList.contains('popup')) {
       var activePopup = map.children[i];
-      // map.removeChild(activePopup);
-      activePopup.classList.add('hidden');
+      map.removeChild(activePopup);
 
       activePin.classList.remove('map__pin--active');
       return;
@@ -419,29 +434,163 @@ var closePopup = function () {
   }
 };
 
-map.addEventListener('click', function (evt) {
+// делегируем обработку клика на пине на блок .map__pins
+pinsContainer.addEventListener('click', function (evt) {
   var target = evt.target;
+  while (target !== pinsContainer) {
+    if (target.className === 'map__pin') {
+      onPinClick(target);
 
-  if (target && target.className === 'popup__close') {
-    closePopup();
-  }
-});
-
-// закрытие попапа при фокусе на крестике клавишей ENTER
-map.addEventListener('keydown', function (evt) {
-  var target = evt.target;
-
-  if (target && target.className === 'popup__close') {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      closePopup();
+      document.addEventListener('keydown', function (evtKeydown) {
+        isEscEvent(evtKeydown, closePopup);
+      });
+      return;
     }
+    target = target.parentNode;
   }
 });
 
-var onPopupEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
+/**
+ * обработчик при нажатии enter на кнопке закрытия попапа
+ * @param  {[type]} evt [description]
+ */
+var onPopupKeydownPress = function (evt) {
+  var target = evt.target;
+
+  if (target && target.className === 'popup__close') {
+    isEnterEvent(evt, closePopup);
+  }
+};
+
+/**
+ * обработчик при клике на кнопке закрытия попапа
+ * @param  {[type]} evt [description]
+ */
+var onPopupClick = function (evt) {
+  var target = evt.target;
+
+  if (target && target.className === 'popup__close') {
     closePopup();
   }
 };
 
-document.addEventListener('keydown', onPopupEscPress);
+// //закрытие попапа при клике на крестике
+map.addEventListener('click', onPopupClick);
+map.addEventListener('keydown', onPopupKeydownPress, true);
+
+var titleField = noticeForm.querySelector('#title');
+var timeIn = noticeForm.querySelector('#timein');
+var timeOut = noticeForm.querySelector('#timeout');
+var typeOfAccomodation = noticeForm.querySelector('#type');
+var price = noticeForm.querySelector('#price');
+var roomNumber = noticeForm.querySelector('#room_number');
+var capacity = noticeForm.querySelector('#capacity');
+var capacitys = capacity.options;
+
+timeIn.addEventListener('change', function (evt) {
+  timeOut.value = evt.target.value;
+});
+
+timeOut.addEventListener('change', function (evt) {
+  timeIn.value = evt.target.value;
+});
+
+/**
+ * синхронизирует тип жилья с минимальной ценой
+ */
+var syncPrice = function () {
+  var selectedField = typeOfAccomodation.value;
+  price.min = TYPE_TO_PRICE[selectedField];
+};
+
+typeOfAccomodation.addEventListener('change', syncPrice);
+
+// соответствие value комнат количеству гостей
+var ROOMS_TO_CAPACITY = {
+  '1': '1',
+  '2': '2',
+  '3': '3',
+  '100': '0'
+};
+
+/**
+ * синхронизирует значение поля выбора комнат со значением поля количества гостей
+ * @return {string} значение поля выбора количества гостей
+ */
+var syncRooms = function () {
+  var roomNumbers = roomNumber.value;
+  var capacityValue = ROOMS_TO_CAPACITY[roomNumbers];
+
+  return capacityValue;
+};
+
+// значения для создания новых элементов выбора гостей
+var CAPACITY_VALUE_TEXT = {
+  1: 'для 1 гостя',
+  2: 'для 2 гостей',
+  3: 'для 3 гостей',
+  0: 'не для гостей'
+};
+
+/**
+ * создает новые опции для селекта
+ * @param  {string} val    значение опции
+ * @param  {string} txt    текстовое значение
+ * @param  {Element} select селект
+ */
+var createNewOption = function (val, txt, select) {
+  var newOption = document.createElement('OPTION');
+  newOption.value = val;
+  newOption.text = txt;
+  select.add(newOption);
+};
+
+/**
+ * синхронизирует поля выбора комнат с количеством гостей
+ */
+var roomNumberSync = function () {
+  var selectedValue = syncRooms();
+  capacity.length = 0;
+  for (var value in CAPACITY_VALUE_TEXT) {
+    if (CAPACITY_VALUE_TEXT.hasOwnProperty(value)) {
+      if (value <= selectedValue && value !== '0') {
+        createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
+      }
+      if (selectedValue === '0') {
+        createNewOption(value, CAPACITY_VALUE_TEXT[value], capacity);
+
+        return;
+      }
+    }
+  }
+};
+
+roomNumber.addEventListener('change', roomNumberSync);
+
+/**
+ * валидация формы
+ * @param  {Element} input поле формы для валидации
+ */
+var validateInput = function (input) {
+  if (input.validity.tooShort) {
+    input.setCustomValidity('Заголовок должен состоять минимум из ' + input.getAttribute('minlength') + ' символов');
+  } else if (input.validity.tooLong) {
+    input.setCustomValidity('Заголовок должен состоять максимум из ' + input.getAttribute('maxlength') + ' символов');
+  } else if (input.validity.valueMissing) {
+    input.setCustomValidity('Обязательное поле');
+  } else if (input.validity.rangeUnderflow) {
+    input.setCustomValidity('Минимальное значение цены ' + input.getAttribute('min'));
+  } else if (input.validity.tooLong) {
+    input.setCustomValidity('Максимальное значение цены ' + input.getAttribute('max'));
+  } else {
+    input.setCustomValidity('');
+  }
+};
+
+titleField.addEventListener('invalid', function () {
+  validateInput(titleField);
+});
+
+price.addEventListener('invalid', function () {
+  validateInput(price);
+});
