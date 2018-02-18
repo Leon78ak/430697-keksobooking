@@ -117,15 +117,10 @@
    * скрывает попап
    */
   var closePopup = function () {
-    for (var i = 0; i < map.children.length; i++) {
-      if (map.children[i].classList.contains('popup')) {
-        var activePopup = map.children[i];
-        map.removeChild(activePopup);
+    map.removeChild(map.querySelector('.popup'));
 
-        activePin.classList.remove('map__pin--active');
-        return;
-      }
-    }
+    activePin.classList.remove('map__pin--active');
+    activePin = null;
   };
 
   // делегируем обработку клика на пине на блок .map__pins
