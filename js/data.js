@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var users = 8;
   var TITLES = [
     'Большая уютная квартира',
     'Маленькая неуютная квартира',
@@ -11,10 +12,14 @@
     'Уютное бунгало далеко от моря',
     'Неуютное бунгало по колено в воде'
   ];
-  var TYPES_OF_ACCOMODATION = {
-    flat: 'Квартира',
-    house: 'Дом',
-    bungalo: 'Бунгало'
+  /**
+   * соответствие русских значений английским
+   * @enum {string}
+   */
+  var typesToAccomodationName = {
+    'flat': 'Квартира',
+    'house': 'Дом',
+    'bungalo': 'Бунгало'
   };
   var CHECK_TIMES = [
     '12:00',
@@ -37,10 +42,16 @@
   var PRICE_MIN = 1000;
   var PRICE_MAX = 1000000;
 
-  var MIN_X = 300;
-  var MAX_X = 900;
-  var MIN_Y = 100;
-  var MAX_Y = 500;
+  /**
+   * граничные значения диапазона координат
+   * @enum {number}
+   */
+  var Coords = {
+    MIN_X:  300,
+    MAX_X:  900,
+    MIN_Y:  150,
+    MAX_Y:  500
+  };
 
   var MIN_ROOMS = 1;
   var MAX_ROOMS = 5;
@@ -60,8 +71,8 @@
     var notices = [];
 
     for (var i = 0; i < usersNumb; i++) {
-      var x = window.util.getRandomInteger(MIN_X, MAX_X);
-      var y = window.util.getRandomInteger(MIN_Y, MAX_Y);
+      var x = window.util.getRandomInteger(Coords.MIN_X, Coords.MAX_X);
+      var y = window.util.getRandomInteger(Coords.MIN_Y, Coords.MAX_Y);
 
       notices[i] = {
         author: {
@@ -72,7 +83,7 @@
           title: window.util.getRandomUniqueArrayValue(titles),
           address: x + ', ' + y,
           price: window.util.getRandomInteger(PRICE_MIN, PRICE_MAX),
-          type: TYPES_OF_ACCOMODATION[window.util.getRandomArrayValue(Object.keys(TYPES_OF_ACCOMODATION))],
+          type: typesToAccomodationName[window.util.getRandomArrayValue(Object.keys(typesToAccomodationName))],
           rooms: window.util.getRandomInteger(MIN_ROOMS, MAX_ROOMS),
           guests: window.util.getRandomInteger(MIN_GUESTS, MAX_GUESTS),
           checkin: window.util.getRandomArrayValue(CHECK_TIMES),
@@ -92,5 +103,8 @@
     return notices;
   };
 
-  window.data = createNotices(8);
+  window.data = {
+    createNotices: createNotices(users),
+    coords: Coords
+  }
 })();

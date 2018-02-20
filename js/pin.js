@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  window.PIN_ARROW_HEIGHT = 16;
+  window.PIN_ARROW_HEIGHT = 18;
 
   var map = document.querySelector('.map');
   var template = document.querySelector('template');
@@ -36,6 +36,6 @@
     return fragmentPin;
   };
 
-  similarPinsList.appendChild(renderPin(window.data));
+  similarPinsList.appendChild(renderPin(window.data.createNotices));
 
 })();

@@ -1,21 +1,31 @@
 'use strict';
 
 (function () {
-  var TYPE_TO_PRICE = {
-    bungalo: 0,
-    flat: 1000,
-    house: 5000,
-    palace: 10000
+  /**
+   * соответствие минимальной цены значению типа жилья
+   * @emum {string}
+   */
+  var typeToPrice = {
+    'bungalo': '0',
+    'flat': '1000',
+    'house': '5000',
+    'palace': '10000'
   };
-  // соответствие value комнат количеству гостей
-  var ROOMS_TO_CAPACITY = {
+  /**
+   * соответствие value комнат количеству гостей
+   * @emum {string}
+   */
+  var roomsToCapacity = {
     '1': '1',
     '2': '2',
     '3': '3',
     '100': '0'
   };
 
-  // значения для создания новых элементов выбора гостей
+  /**
+   * значения для создания новых элементов выбора гостей
+   * @enum {string}
+   */
   var CAPACITY_VALUE_TEXT = {
     1: 'для 1 гостя',
     2: 'для 2 гостей',
@@ -31,6 +41,7 @@
   var price = noticeForm.querySelector('#price');
   var roomNumber = noticeForm.querySelector('#room_number');
   var capacity = noticeForm.querySelector('#capacity');
+  var reset = noticeForm.querySelector('.form__reset');
 
   timeIn.addEventListener('change', function (evt) {
     timeOut.value = evt.target.value;
@@ -43,9 +54,9 @@
   /**
    * синхронизирует тип жилья с минимальной ценой
    */
-  var syncPrice = function () {
+  window.syncPrice = function () {
     var selectedField = typeOfAccomodation.value;
-    price.min = TYPE_TO_PRICE[selectedField];
+    price.min = typeToPrice[selectedField];
   };
 
   typeOfAccomodation.addEventListener('change', syncPrice);
@@ -56,7 +67,7 @@
    */
   var syncRooms = function () {
     var roomNumbers = roomNumber.value;
-    var capacityValue = ROOMS_TO_CAPACITY[roomNumbers];
+    var capacityValue = roomsToCapacity[roomNumbers];
 
     return capacityValue;
   };
@@ -124,4 +135,8 @@
     validateInput(price);
   });
 
+  reset.addEventListener('click', function (evt) {
+    window.deactivatePage();
+    evt.preventDefault();
+  })
 })();
