@@ -59,7 +59,7 @@
     price.min = typeToPrice[selectedField];
   };
 
-  typeOfAccomodation.addEventListener('change', syncPrice);
+  typeOfAccomodation.addEventListener('change', window.syncPrice);
 
   /**
    * синхронизирует значение поля выбора комнат со значением поля количества гостей
@@ -138,5 +138,5 @@
   reset.addEventListener('click', function (evt) {
     window.deactivatePage();
     evt.preventDefault();
-  })
+  });
 })();

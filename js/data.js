@@ -47,10 +47,10 @@
    * @enum {number}
    */
   var Coords = {
-    MIN_X:  300,
-    MAX_X:  900,
-    MIN_Y:  150,
-    MAX_Y:  500
+    MIN_X: 300,
+    MAX_X: 900,
+    MIN_Y: 150,
+    MAX_Y: 500
   };
 
   var MIN_ROOMS = 1;
@@ -106,5 +106,5 @@
   window.data = {
     createNotices: createNotices(users),
     coords: Coords
-  }
+  };
 })();

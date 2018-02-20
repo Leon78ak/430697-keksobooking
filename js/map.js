@@ -24,8 +24,8 @@
    * @return {string}     значение в поле адреса
    */
   var getAddressCoords = function (obj) {
-    debugger;
-    return  addressField.value = 'x: ' + obj.x + ' y: ' + obj.y;
+    addressField.value = 'x: ' + obj.x + ' y: ' + obj.y;
+    return addressField.value;
   };
 
   /**
@@ -158,7 +158,7 @@
   map.addEventListener('click', onPopupClick);
   map.addEventListener('keydown', onPopupKeydownPress, true);
 
-   /**
+  /**
    * деактивация страницы
    */
   window.deactivatePage = function () {
@@ -182,7 +182,7 @@
     mapPinMain.style.left = '';
   };
 
-  deactivatePage();
+  window.deactivatePage();
 
   // перемещение главной метки
   mapPinMain.addEventListener('mousedown', function (evt) {
@@ -220,7 +220,7 @@
       // обработка выноса за верхнюю границу положения на карте
       if (newY < window.data.coords.MIN_Y) {
         newY = window.data.coords.MIN_Y;
-      };
+      }
 
       // вынос за нижнюю границу окна
       // новая нижняя граница элемента
@@ -228,12 +228,12 @@
 
       if (newBottom > window.data.coords.MAX_Y) {
         newY = window.data.coords.MAX_Y - (mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT);
-      };
+      }
 
       // вынос за левую границу окна
       if (newX < 0 + mapPinMain.offsetWidth / 2) {
         newX = 0 + mapPinMain.offsetWidth / 2;
-      };
+      }
 
       // вынос за правую границу окна
       if (newX > map.clientWidth - mapPinMain.offsetWidth / 2) {
