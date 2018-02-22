@@ -95,12 +95,32 @@
   };
 
   /**
+   * возвращает значение src изображения на активной метке
+   * @param  {Element} activePin активная метка
+   * @return {string}           значение src активной метки
+   */
+  var getSrcOnActivePin = function (activePin) {
+    var img = activePin.querySelector('img');
+
+    return img.getAttribute('src');
+  };
+
+  /**
    * показывает попап
+   * @return {[type]} [description]
    */
   var openPopup = function () {
-    var index = Array.from(mapPin).indexOf(activePin);
+    var image = getSrcOnActivePin(activePin);
+    var item = window.renderCard(window.data.createNotices.filter(function (item) {
+      if (item.author.avatar === image) {
+        return item;
+      }
+    })[0]);
 
-    map.insertBefore(window.renderCard(window.data.createNotices[index - 1]), mapFilters);
+    var fragmentCard = document.createDocumentFragment();
+    fragmentCard.appendChild(item);
+
+    map.insertBefore(fragmentCard, mapFilters);
   };
 
   /**
@@ -117,6 +137,7 @@
 
   // делегируем обработку клика на пине на блок .map__pins
   pinsContainer.addEventListener('click', function (evt) {
+    debugger;
     var target = evt.target;
     while (target !== pinsContainer) {
       if (target.className === 'map__pin') {
