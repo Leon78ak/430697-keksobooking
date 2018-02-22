@@ -36,13 +36,14 @@
     Array.from(formFieldsets).forEach(function (fieldset) {
       fieldset.disabled = false;
     });
-
+    // удаляем из разметки выбора количества мест все доступные опции
+    // кроме выбранной по умолчанию
     Array.from(capacitys).filter(function (option) {
       if (option.value !== '1') {
         option.remove();
       }
     });
-
+    // синхронизируем минимальное значение поля цены с типом жилья по умолчанию
     window.syncPrice();
   };
 

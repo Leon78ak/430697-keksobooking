@@ -1,6 +1,6 @@
 'use strict';
 
-// (function () {
+(function () {
   var template = document.querySelector('template');
   var similarCardTemplate = template.content.querySelector('.map__card');
 
@@ -12,7 +12,7 @@
   var renderPicturesToCard = function (card) {
     var fragment = document.createDocumentFragment();
     var cardPhotos = card.offer.photos;
-    cardPhotos.forEach(function (photo)  {
+    cardPhotos.forEach(function (photo) {
       var popupPicture = document.querySelector('template').content.querySelector('.popup__pictures > *').cloneNode(true);
       var popupImgElement = popupPicture.querySelector('img');
       popupImgElement.src = photo;
@@ -78,4 +78,4 @@
 
     return fragmentCard;
   };
-// })();
+})();
