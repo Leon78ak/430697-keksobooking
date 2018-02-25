@@ -19,7 +19,7 @@
   var typesToAccomodationName = {
     'flat': 'Квартира',
     'house': 'Дом',
-    'bungalo': 'Бунгало'
+    'bungalo': 'Бунгало'+
   };
   var CHECK_TIMES = [
     '12:00',
