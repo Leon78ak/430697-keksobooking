@@ -49,6 +49,13 @@
     return fragment;
   };
 
+  var roomsOffer = function (card) {
+    if (card.offer.rooms !== '0') {
+      return card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+    }
+    return 'не для гостей';
+  };
+
   /**
    * получает элемент из шаблона
    * @param  {Object} card объект данных
@@ -60,7 +67,8 @@
     cardElement.querySelector('p small').textContent = card.offer.address;
     cardElement.querySelector('.popup__price').textContent = card.offer.price + ' \u20bd/ночь';
     cardElement.querySelector('h4').textContent = typesToAccomodationName[card.offer.type];
-    cardElement.querySelector('h4 + p').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+    debugger;
+    cardElement.querySelector('h4 + p').textContent = roomsOffer(card);
     cardElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
     // выводим список доступных удобств
     var ulFeatures = cardElement.querySelector('.popup__features');
