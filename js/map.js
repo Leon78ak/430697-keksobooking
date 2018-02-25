@@ -2,6 +2,7 @@
 
 (function () {
   var map = document.querySelector('.map');
+  var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
   var mapPinMain = map.querySelector('.map__pin--main');
   var mapPin = map.querySelectorAll('.map__pin');
@@ -54,15 +55,16 @@
     });
   };
 
+  var successHandler = function (response) {
+    similarPinsList.appendChild(window.renderPin(response));
+  };
+
   /**
    * показывает метки на карте при инициализации страницы
    */
   var showPins = function () {
-    for (var i = 0; i < mapPin.length; i++) {
-      if (mapPin[i].classList.contains('hidden')) {
-        mapPin[i].classList.remove('hidden');
-      }
-    }
+
+    window.backend.load(successHandler);
   };
 
   /**
@@ -109,9 +111,10 @@
    * показывает попап
    * @return {[type]} [description]
    */
-  var openPopup = function () {
+  var openPopup = function (card) {
+    debugger;
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(window.data.createNotices.filter(function (item) {
+    var item = window.renderCard(card.filter(function (item) {
       if (item.author.avatar === image) {
         return item;
       }
@@ -137,7 +140,6 @@
 
   // делегируем обработку клика на пине на блок .map__pins
   pinsContainer.addEventListener('click', function (evt) {
-    debugger;
     var target = evt.target;
     while (target !== pinsContainer) {
       if (target.className === 'map__pin') {
