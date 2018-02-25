@@ -36,4 +36,6 @@
     return fragmentPin;
   };
 
+  // similarPinsList.appendChild(renderPin(window.data.createNotices));
+
 })();

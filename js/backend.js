@@ -6,6 +6,7 @@
     OK: 200,
     ERROR: 400,
     UNAUTHORIZED: 401,
+    NOT_FOUND: 404,
     SERVER_ERROR: 500
   };
 
@@ -42,6 +43,9 @@
           case StatusCode.UNAUTHORIZED:
             error = 'Неавторизованный запрос';
             break;
+            case StatusCode.NOT_FOUND:
+            error = 'Страница не найдена';
+            break;
           case StatusCode.SERVER_ERROR:
             error = 'Внутренняя ошибка сервера';
             break;
@@ -76,18 +80,21 @@
       xhr.addEventListener('load', function () {
         var error;
         switch (xhr.status) {
-          case 200:
+          case StatusCode.OK:
             onLoad(xhr.response);
             break;
 
-          case 400:
+          case StatusCode.ERROR:
             error = 'Неверный запрос';
             break;
-          case 401:
-            error = 'Пользователь не авторизован';
+          case StatusCode.UNAUTHORIZED:
+            error = 'Неавторизованный запрос';
             break;
-          case 404:
-            error = 'Ничего не найдено';
+            case StatusCode.NOT_FOUND:
+            error = 'Страница не найдена';
+            break;
+          case StatusCode.SERVER_ERROR:
+            error = 'Внутренняя ошибка сервера';
             break;
 
           default:

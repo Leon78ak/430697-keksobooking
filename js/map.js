@@ -48,6 +48,9 @@
     window.syncPrice();
   };
 
+  /**
+   * дизеблит форму и поля формы
+   */
   var disableForm = function () {
     noticeForm.classList.add('notice__form--disabled');
     Array.from(formFieldsets).forEach(function (fieldset) {
@@ -55,27 +58,37 @@
     });
   };
 
-  var successHandler = function (response) {
-    similarPinsList.appendChild(window.renderPin(response));
-  };
-
   /**
    * показывает метки на карте при инициализации страницы
+   * @param  {array.<Object>} data массив объектов с данными
    */
-  var showPins = function () {
-
-    window.backend.load(successHandler);
+  var showPins = function (data) {
+    similarPinsList.appendChild(renderPin(data));
   };
 
   /**
-   * активирует страницу
+   * функция-коллбэк возвращает массив данных в случае успеха
+   * @param  {array.<Object>} data массив данных
+   * @return {array.<Object>}      записываем полученные данные
    */
-  var initPage = function () {
-    map.classList.remove('map--faded');
+  var onSuccess = function (data) {
+    showPins(data);
 
     initForm();
 
-    showPins();
+    return window.data.notices = data;
+  }
+
+  /**
+   * функция активации страницы
+   * @param  {Function} callback передаем коллбэк из модуля работы с сервером
+   * @return {[type]}            [description]
+   */
+  var initPage = function (callback) {
+    map.classList.remove('map--faded');
+
+    callback(onSuccess);
+
   };
 
   var activePin = null;
@@ -111,10 +124,9 @@
    * показывает попап
    * @return {[type]} [description]
    */
-  var openPopup = function (card) {
-    debugger;
+  var openPopup = function () {
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(card.filter(function (item) {
+    var item = window.renderCard(window.data.notices.filter(function (item) {
       if (item.author.avatar === image) {
         return item;
       }
@@ -140,6 +152,7 @@
 
   // делегируем обработку клика на пине на блок .map__pins
   pinsContainer.addEventListener('click', function (evt) {
+
     var target = evt.target;
     while (target !== pinsContainer) {
       if (target.className === 'map__pin') {
@@ -287,7 +300,7 @@
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
 
-      initPage();
+      initPage(window.backend.load);
     };
 
     document.addEventListener('mousemove', onMainPinMouseMove);
