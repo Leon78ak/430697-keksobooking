@@ -25,10 +25,10 @@
 
   /**
    * отрисовывает метку
-   * @param {array.<Object>} pins
+   * @param {Array.<Object>} pins
    * @return {[type]}      [description]
    */
-  var renderPin = function (pins) {
+  window.renderPin = function (pins) {
     var fragmentPin = document.createDocumentFragment();
     pins.forEach(function (pin) {
       fragmentPin.appendChild(getPinFromTemplate(pin));
@@ -36,6 +36,6 @@
     return fragmentPin;
   };
 
-  similarPinsList.appendChild(renderPin(window.data.createNotices));
+  // similarPinsList.appendChild(renderPin(window.data.createNotices));
 
 })();

@@ -2,9 +2,10 @@
 
 (function () {
   var map = document.querySelector('.map');
+  var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var mapPin = map.querySelectorAll('.map__pin');
+
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
   var formFieldsets = noticeForm.querySelectorAll('fieldset');
@@ -47,6 +48,9 @@
     window.syncPrice();
   };
 
+  /**
+   * дизеблит форму и поля формы
+   */
   var disableForm = function () {
     noticeForm.classList.add('notice__form--disabled');
     Array.from(formFieldsets).forEach(function (fieldset) {
@@ -56,24 +60,32 @@
 
   /**
    * показывает метки на карте при инициализации страницы
+   * @param  {Array.<Object>} data массив объектов с данными
    */
-  var showPins = function () {
-    for (var i = 0; i < mapPin.length; i++) {
-      if (mapPin[i].classList.contains('hidden')) {
-        mapPin[i].classList.remove('hidden');
-      }
-    }
+  var showPins = function (data) {
+    similarPinsList.appendChild(renderPin(data));
   };
 
   /**
-   * активирует страницу
+   * функция-коллбэк возвращает массив данных в случае успеха
+   * @param  {Array.<Object>} data массив данных
+   * @return {Array.<Object>}      записываем полученные данные
    */
-  var initPage = function () {
+  var onSuccess = function (data) {
+    showPins(data);
+
+    return window.data.notices = data;
+  }
+
+  /**
+   * функция активации страницы
+   * @param  {Function} callback передаем коллбэк из модуля работы с сервером
+   * @return {[type]}            [description]
+   */
+  var initPage = function (callback) {
     map.classList.remove('map--faded');
-
     initForm();
-
-    showPins();
+    callback(onSuccess);
   };
 
   var activePin = null;
@@ -111,7 +123,7 @@
    */
   var openPopup = function () {
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(window.data.createNotices.filter(function (item) {
+    var item = window.renderCard(window.data.notices.filter(function (item) {
       if (item.author.avatar === image) {
         return item;
       }
@@ -137,7 +149,7 @@
 
   // делегируем обработку клика на пине на блок .map__pins
   pinsContainer.addEventListener('click', function (evt) {
-    debugger;
+
     var target = evt.target;
     while (target !== pinsContainer) {
       if (target.className === 'map__pin') {
@@ -189,6 +201,7 @@
 
     closePopup();
     // скроем метки похожих объявлений
+    var mapPin = map.querySelectorAll('.map__pin');
     Array.from(mapPin).forEach(function (pin) {
       if (!pin.classList.contains('map__pin--main')) {
         pin.classList.add('hidden');
@@ -285,7 +298,7 @@
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
 
-      initPage();
+      initPage(window.backend.load);
     };
 
     document.addEventListener('mousemove', onMainPinMouseMove);
