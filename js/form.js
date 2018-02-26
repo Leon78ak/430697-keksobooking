@@ -135,20 +135,21 @@
     validateInput(price);
   });
 
-  reset.addEventListener('click', function (evt) {
-    debugger;
+  var onReset = function (evt) {
     window.deactivatePage();
     evt.preventDefault();
-  });
+  };
+
+  reset.addEventListener('click', onReset);
 
   var onSubmit = function (evt) {
     window.backend.save(new FormData(noticeForm), function (response) {
-      // closePopup();
+      onReset();
     });
     evt.preventDefault();
   };
 
-  noticeForm.addEventListener('submit', onSubmit);
+  noticeForm.addEventListener('submit', onSubmit, );
 })();
 
 

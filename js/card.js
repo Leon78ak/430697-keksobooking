@@ -67,7 +67,6 @@
     cardElement.querySelector('p small').textContent = card.offer.address;
     cardElement.querySelector('.popup__price').textContent = card.offer.price + ' \u20bd/ночь';
     cardElement.querySelector('h4').textContent = typesToAccomodationName[card.offer.type];
-    debugger;
     cardElement.querySelector('h4 + p').textContent = roomsOffer(card);
     cardElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
     // выводим список доступных удобств
