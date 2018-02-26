@@ -5,7 +5,7 @@
   var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var mapPin = map.querySelectorAll('.map__pin');
+
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
   var formFieldsets = noticeForm.querySelectorAll('fieldset');
@@ -201,6 +201,7 @@
 
     closePopup();
     // скроем метки похожих объявлений
+    var mapPin = map.querySelectorAll('.map__pin');
     Array.from(mapPin).forEach(function (pin) {
       if (!pin.classList.contains('map__pin--main')) {
         pin.classList.add('hidden');

@@ -136,6 +136,7 @@
   });
 
   reset.addEventListener('click', function (evt) {
+    debugger;
     window.deactivatePage();
     evt.preventDefault();
   });
