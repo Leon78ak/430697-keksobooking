@@ -43,7 +43,7 @@
           case StatusCode.UNAUTHORIZED:
             error = 'Неавторизованный запрос';
             break;
-            case StatusCode.NOT_FOUND:
+          case StatusCode.NOT_FOUND:
             error = 'Страница не найдена';
             break;
           case StatusCode.SERVER_ERROR:
@@ -68,7 +68,6 @@
      * которая срабатывает при успешном выполнении запроса
      * @param  {requestCallback} onError функция обратного вызова,
      * которая срабатывает при неуспешном выполнении запроса
-     * @return {[type]}         [description]
      */
     load: function (onLoad, onError) {
       SERVER_UPLOAD_URL = 'https://js.dump.academy/keksobooking/data';
@@ -90,7 +89,7 @@
           case StatusCode.UNAUTHORIZED:
             error = 'Неавторизованный запрос';
             break;
-            case StatusCode.NOT_FOUND:
+          case StatusCode.NOT_FOUND:
             error = 'Страница не найдена';
             break;
           case StatusCode.SERVER_ERROR:

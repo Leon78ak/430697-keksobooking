@@ -149,8 +149,6 @@
     evt.preventDefault();
   };
 
-  noticeForm.addEventListener('submit', onSubmit, );
+  noticeForm.addEventListener('submit', onSubmit);
 })();
-
-
 
