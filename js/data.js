@@ -13,7 +13,11 @@
     MAX_Y: 500
   };
 
-  var data;
+  /**
+   * данные, загруженные с сервера
+   * @type {Array.<Object>}
+   */
+  var data = null;
 
   window.data = {
     notices: data,

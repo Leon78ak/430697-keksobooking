@@ -25,7 +25,7 @@
 
   /**
    * отрисовывает метку
-   * @param {array.<Object>} pins
+   * @param {Array.<Object>} pins
    * @return {[type]}      [description]
    */
   window.renderPin = function (pins) {

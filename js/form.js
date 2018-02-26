@@ -139,4 +139,16 @@
     window.deactivatePage();
     evt.preventDefault();
   });
+
+  var onSubmit = function (evt) {
+    window.backend.save(new FormData(noticeForm), function (response) {
+      // closePopup();
+    });
+    evt.preventDefault();
+  };
+
+  noticeForm.addEventListener('submit', onSubmit);
 })();
+
+
+

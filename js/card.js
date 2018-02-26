@@ -87,7 +87,7 @@
 
   /**
    * отрисовывавет карточку на страницу
-   * @param  {array.<Object>} card объект с данными из массива
+   * @param  {Array.<Object>} card объект с данными из массива
    * @return {Element} фрагмент для вставки
    */
   window.renderCard = function (card) {

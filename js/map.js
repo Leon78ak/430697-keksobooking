@@ -60,7 +60,7 @@
 
   /**
    * показывает метки на карте при инициализации страницы
-   * @param  {array.<Object>} data массив объектов с данными
+   * @param  {Array.<Object>} data массив объектов с данными
    */
   var showPins = function (data) {
     similarPinsList.appendChild(renderPin(data));
@@ -68,13 +68,11 @@
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
-   * @param  {array.<Object>} data массив данных
-   * @return {array.<Object>}      записываем полученные данные
+   * @param  {Array.<Object>} data массив данных
+   * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
     showPins(data);
-
-    initForm();
 
     return window.data.notices = data;
   }
@@ -86,9 +84,8 @@
    */
   var initPage = function (callback) {
     map.classList.remove('map--faded');
-
+    initForm();
     callback(onSuccess);
-
   };
 
   var activePin = null;
