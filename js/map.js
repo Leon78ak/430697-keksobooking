@@ -1,11 +1,22 @@
 'use strict';
 
 (function () {
+
+  /**
+   * граничные значения диапазона координат на карте
+   * @enum {number}
+   */
+  var Coords = {
+    MIN_X: 300,
+    MAX_X: 900,
+    MIN_Y: 150,
+    MAX_Y: 500
+  };
+
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
   var mapPinMain = map.querySelector('.map__pin--main');
-
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
   var formFieldsets = noticeForm.querySelectorAll('fieldset');
@@ -63,8 +74,14 @@
    * @param  {Array.<Object>} data массив объектов с данными
    */
   var showPins = function (data) {
-    similarPinsList.appendChild(renderPin(data));
+    similarPinsList.appendChild(window.renderPin(data));
   };
+
+  /**
+   * инициализируем переменную для хранения данных с сервера
+   * @type {Array.<Object>}
+   */
+  var notices;
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
@@ -73,19 +90,52 @@
    */
   var onSuccess = function (data) {
     showPins(data);
+    notices = data;
 
-    return window.data.notices = data;
-  }
+    return notices;
+  };
+
+
+  /**
+   * функция обратного вызова, которая срабатывает при неуспешном выполнении запроса:
+   * выводит окно с сообщением об ошибке
+   * @param  {string} error сообщение об ошибке
+   */
+  var onError = function (error) {
+    console.log(error);
+    var message = document.createElement('div');
+    message.style.cssText="position: fixed; \
+    top: 10vh; \
+    left: 50%; \
+    z-index: 100; \
+    width: 400px; \
+    margin-left: -200px; \
+    font-size: 2em; \
+    color: #ff5635; !important; \
+    text-align: center; \
+    text-transform: uppercase; \
+    border: 2px solid #ff5635; \
+    border-radius: 4px; \
+    background-color: #ffffff; \
+    ";
+    message.innerHTML = error;
+    document.body.appendChild(message);
+
+    setTimeout(function() {
+        document.body.removeChild(message);
+        deactivatePage();
+      }, 15000);
+  };
 
   /**
    * функция активации страницы
    * @param  {Function} callback передаем коллбэк из модуля работы с сервером
-   * @return {[type]}            [description]
    */
   var initPage = function (callback) {
     map.classList.remove('map--faded');
     initForm();
-    callback(onSuccess);
+
+    callback(onSuccess, onError);
   };
 
   var activePin = null;
@@ -94,6 +144,7 @@
    * @param  {Element}  node метка с событием
    */
   var isPinClick = function (node) {
+    debugger;
     // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
     if (activePin) {
       activePin.classList.remove('map__pin--active');
@@ -103,7 +154,7 @@
     activePin = node;
     activePin.classList.add('map__pin--active');
 
-    openPopup();
+    openPopup(notices);
   };
 
   /**
@@ -121,9 +172,9 @@
    * показывает попап
    * @return {[type]} [description]
    */
-  var openPopup = function () {
+  var openPopup = function (data) {
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(window.data.notices.filter(function (item) {
+    var item = window.renderCard(data.filter(function (item) {
       if (item.author.avatar === image) {
         return item;
       }
@@ -195,7 +246,7 @@
   /**
    * деактивация страницы
    */
-  window.deactivatePage = function () {
+  var deactivatePage = function () {
     // устанавливаем значения адресного поля по умолчанию
     getAddressCoords(initAddressCoords);
 
@@ -204,7 +255,7 @@
     var mapPin = map.querySelectorAll('.map__pin');
     Array.from(mapPin).forEach(function (pin) {
       if (!pin.classList.contains('map__pin--main')) {
-        pin.classList.add('hidden');
+        pin.remove();
       }
     });
 
@@ -217,7 +268,7 @@
     mapPinMain.style.left = '';
   };
 
-  window.deactivatePage();
+  deactivatePage();
 
   // перемещение главной метки
   mapPinMain.addEventListener('mousedown', function (evt) {
@@ -253,16 +304,16 @@
       var newX = mapPinMain.offsetLeft - shift.x;
 
       // обработка выноса за верхнюю границу положения на карте
-      if (newY < window.data.coords.MIN_Y) {
-        newY = window.data.coords.MIN_Y;
+      if (newY < Coords.MIN_Y) {
+        newY = Coords.MIN_Y;
       }
 
       // вынос за нижнюю границу окна
       // новая нижняя граница элемента
       var newBottom = newY + mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT;
 
-      if (newBottom > window.data.coords.MAX_Y) {
-        newY = window.data.coords.MAX_Y - (mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT);
+      if (newBottom > Coords.MAX_Y) {
+        newY = Coords.MAX_Y - (mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT);
       }
 
       // вынос за левую границу окна
@@ -304,4 +355,9 @@
     document.addEventListener('mousemove', onMainPinMouseMove);
     document.addEventListener('mouseup', onMainPinMouseUp);
   });
+
+  window.map = {
+    deactivatePage: deactivatePage,
+    onError: onError
+  }
 })();

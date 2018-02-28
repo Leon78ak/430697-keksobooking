@@ -10,8 +10,6 @@
     SERVER_ERROR: 500
   };
 
-  var SERVER_URL = '';
-  var SERVER_UPLOAD_URL = '';
   var TIMEOUT = 10000;
 
   window.backend = {
@@ -25,7 +23,7 @@
      * которая срабатывает при неуспешном выполнении запроса
      */
     save: function (data, onLoad, onError) {
-      SERVER_URL = 'https://js.dump.academy/keksobooking';
+      var SERVER_URL = 'https://js.dump.academy/keksobooking';
       var xhr = new XMLHttpRequest();
       xhr.responseType = 'json';
 
@@ -70,7 +68,7 @@
      * которая срабатывает при неуспешном выполнении запроса
      */
     load: function (onLoad, onError) {
-      SERVER_UPLOAD_URL = 'https://js.dump.academy/keksobooking/data';
+      var SERVER_UPLOAD_URL = 'https://js.dump.academy/keksobooking/data';
 
       var xhr = new XMLHttpRequest();
       xhr.responseType = 'json';
@@ -90,7 +88,7 @@
             error = 'Неавторизованный запрос';
             break;
           case StatusCode.NOT_FOUND:
-            error = 'Страница не найдена';
+            error = 'Страница не найдена\nПроверьте адрес подключения';
             break;
           case StatusCode.SERVER_ERROR:
             error = 'Внутренняя ошибка сервера';

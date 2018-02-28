@@ -49,8 +49,13 @@
     return fragment;
   };
 
+  /**
+   * функция проверки количества комнат
+   * @param  {Object} card объект с данными
+   * @return {string}      количество комнат для гостей
+   */
   var roomsOffer = function (card) {
-    if (card.offer.rooms !== '0') {
+    if (card.offer.rooms !== 0) {
       return card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
     }
     return 'не для гостей';

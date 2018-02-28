@@ -135,17 +135,26 @@
     validateInput(price);
   });
 
-  var onReset = function (evt) {
-    window.deactivatePage();
-    evt.preventDefault();
+  /**
+   * запускает логику событий при сбросе -
+   * сброс значений формы и деактивация страницы
+   */
+  var onReset = function () {
+    noticeForm.reset();
+    window.map.deactivatePage();
   };
 
   reset.addEventListener('click', onReset);
 
+  /**
+   * обработчик событий при отправке формы,
+   * при успешном ответе сбрасывает значения формы и деактивирует страницу
+   * @param  {Object} evt объект событий
+   */
   var onSubmit = function (evt) {
     window.backend.save(new FormData(noticeForm), function (response) {
       onReset();
-    });
+    }, window.map.onError);
     evt.preventDefault();
   };
 
