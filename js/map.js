@@ -16,6 +16,7 @@
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
+  var popupFilters = map.querySelector('.map__filters');
   var mapPinMain = map.querySelector('.map__pin--main');
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
@@ -79,9 +80,9 @@
 
   /**
    * инициализируем переменную для хранения данных с сервера
-   * @type {Array.<Object>}
+   * @type {Array.<?Object>}
    */
-  var notices;
+  var notices = [];
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
@@ -360,4 +361,14 @@
     deactivatePage: deactivatePage,
     onError: onError
   }
+
+  // навесим обработчик на фильтр
+  //
+  popupFilters.addEventListener('change', function (evt) {
+
+  });
+
+  // сделаем копию исходных данных
+  var filteredNotices = notices.slice(0);
+  console.log(filteredNotices);
 })();
