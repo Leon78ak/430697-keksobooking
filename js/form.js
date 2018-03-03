@@ -140,6 +140,7 @@
    * сброс значений формы и деактивация страницы
    */
   var onReset = function () {
+    debugger;
     noticeForm.reset();
     window.map.deactivatePage();
   };

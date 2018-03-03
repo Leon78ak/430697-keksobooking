@@ -548,6 +548,25 @@ textarea:focus
     background-color: #f8f8f8;
 }
 
+.error {
+    position: fixed;
+    top: 10vh;
+    left: 50%;
+    z-index: 100;
+
+    width: 400px;
+    margin-left: -200px;
+
+    font-size: 2em;
+    color: #ff5635;
+    text-align: center;
+    text-transform: uppercase;
+
+    border: 2px solid #ff5635;
+    border-radius: 4px;
+    background-color: #ffffff;
+}
+
 .notice
 {
     margin: 0 120px;
