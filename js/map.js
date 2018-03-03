@@ -15,17 +15,14 @@
 
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
-<<<<<<< HEAD
   var mapFilters = map.querySelector('.map__filters-container');
   var popupFilters = map.querySelector('.map__filters');
-=======
   var mapFiltersContainer = map.querySelector('.map__filters-container');
   var mapFilters = map.querySelector('.map__filters');
   var typeFilter = mapFilters.querySelector('#housing-type');
   var priceFilter = mapFilters.querySelector('#housing-price');
   var roomsFilter = mapFilters.querySelector('#housing-rooms');
   var guestsFilter = mapFilters.querySelector('#housing-guests');
->>>>>>> master
   var mapPinMain = map.querySelector('.map__pin--main');
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
@@ -376,20 +373,6 @@
 
   window.map = {
     deactivatePage: deactivatePage,
-<<<<<<< HEAD
-    onError: onError
-  }
-
-  // навесим обработчик на фильтр
-  //
-  popupFilters.addEventListener('change', function (evt) {
-
-  });
-
-  // сделаем копию исходных данных
-  var filteredNotices = notices.slice(0);
-  console.log(filteredNotices);
-=======
     onError: onError,
     notices: notices
   };
@@ -468,8 +451,4 @@
     updatePins(type, guests, rooms, price);
 
   });
-
-
-
->>>>>>> master
 })();
