@@ -6,7 +6,6 @@
   var map = document.querySelector('.map');
   var template = document.querySelector('template');
   var similarPinTemplate = template.content.querySelector('.map__pin');
-  var similarPinsList = map.querySelector('.map__pins');
 
   var pinOffset = {
     y: similarPinTemplate.offsetHeight + window.PIN_ARROW_HEIGHT
@@ -32,7 +31,7 @@
     var fragmentPin = document.createDocumentFragment();
     pins.forEach(function (pin) {
       fragmentPin.appendChild(getPinFromTemplate(pin));
-      });
+    });
     return fragmentPin;
   };
 })();

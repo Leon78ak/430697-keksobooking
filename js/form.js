@@ -141,7 +141,6 @@
    * сброс значений формы и деактивация страницы
    */
   var onReset = function () {
-    debugger;
     noticeForm.reset();
     mapFiltersForm.reset();
     window.map.deactivatePage();
