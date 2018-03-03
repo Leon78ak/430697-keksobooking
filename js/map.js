@@ -106,9 +106,8 @@
    * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
-    debugger;
     data.filter(function (it) {
-      if (it.author.avatar !== "img/avatars/default.png")  {
+      if (it.author.avatar !== "img/avatars/default.png") {
         newData.push(it);
       };
     });
@@ -149,7 +148,6 @@
    * @param  {Element}  node метка с событием
    */
   var isPinClick = function (node) {
-    debugger;
     // Если до этого у другого элемента существовал класс pin--active, то у этого элемента класс нужно убрать
     if (activePin) {
       activePin.classList.remove('map__pin--active');
@@ -377,10 +375,6 @@
     onError: onError
   };
 
-
-
-
-
   /**
    * обновляет пины в соответствии с выбранными фильтрами
    * @param  {[type]} type     [description]
@@ -390,53 +384,7 @@
    * @param  {[type]} features [description]
    * @return {[type]}          [description]
    */
-  var updatePins =  function (type, guests, price, rooms, features) {
-    closePopup();
-    removePins();
-
-    var newNotices = [];
-    debugger;
-    if (type !== 'any') {
-      newNotices = newData.filter(function (it) {
-        return it.offer.type === type;
-      });
-      console.log(newNotices);
-    }
-    if (guests !== 'any') {
-      newNotices = newData.filter(function (it) {
-        return it.offer.guests === (+guests);
-      });
-    }
-    if (rooms !== 'any') {
-      newNotices = newData.filter(function (it) {
-        return it.offer.rooms === (+rooms);
-      });
-    }
-    if (price !== 'any') {
-      if (price === 'low') {
-        newNotices = newData.filter(function (it) {
-          return it.offer.price < 10000;
-        });
-      } else if (price === 'high') {
-        newNotices = newData.filter(function (it) {
-          return it.offer.price > 50000;
-        });
-      } else if (price === 'middle') {
-        newNotices = newData.filter(function (it) {
-          return (it.offer.price >= 10000 && it.offer.price <= 50000);
-        });
-      }
-    }
-    features.forEach(function (feature) {
-      newNotices = newData.filter(function (it) {
-          return it.offer.features.includes(feature.value);
-        });
-    });
-
-    similarPinsList.appendChild(window.renderPins(newNotices));
-    }
-
-  mapFilters.addEventListener('change', function () {
+  var updatePins =  function () {
     var type = typeFilter.value;
     var guests = guestsFilter.value;
     var price = priceFilter.value;
@@ -446,7 +394,51 @@
     var features = Array.from(featuresFilter).filter(function (it) {
         return it.value;
     });
+    closePopup();
+    removePins();
 
-    updatePins(type, guests, price, rooms, features);
+    var notices = newData;
+
+    if (type !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.type === type;
+      });
+    }
+    if (guests !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.guests === (+guests);
+      });
+    }
+    if (rooms !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.rooms === (+rooms);
+      });
+    }
+    if (price !== 'any') {
+      if (price === 'low') {
+        notices = notices.filter(function (it) {
+          return it.offer.price < 10000;
+        });
+      } else if (price === 'high') {
+        notices = notices.filter(function (it) {
+          return it.offer.price > 50000;
+        });
+      } else if (price === 'middle') {
+        notices = notices.filter(function (it) {
+          return (it.offer.price >= 10000 && it.offer.price <= 50000);
+        });
+      }
+    }
+    features.forEach(function (feature) {
+      notices = notices.filter(function (it) {
+          return it.offer.features.includes(feature.value);
+        });
+    });
+
+    similarPinsList.appendChild(window.renderPins(notices));
+    }
+
+  mapFilters.addEventListener('change', function () {
+    window.debounce(updatePins);
   });
 })();
