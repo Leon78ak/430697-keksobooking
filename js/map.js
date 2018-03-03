@@ -24,7 +24,6 @@
   var roomsFilter = mapFilters.querySelector('#housing-rooms');
   var guestsFilter = mapFilters.querySelector('#housing-guests');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
   var formFieldsets = noticeForm.querySelectorAll('fieldset');
   var addressField = noticeForm.querySelector('#address');
@@ -197,10 +196,10 @@
   };
 
   // делегируем обработку клика на пине на блок .map__pins
-  pinsContainer.addEventListener('click', function (evt) {
+  similarPinsList.addEventListener('click', function (evt) {
 
     var target = evt.target;
-    while (target !== pinsContainer) {
+    while (target !== similarPinsList) {
       if (target.className === 'map__pin') {
         isPinClick(target);
 
@@ -364,10 +363,6 @@
     document.addEventListener('mouseup', onMainPinMouseUp);
   });
 
-  window.map = {
-    deactivatePage: deactivatePage,
-    onError: onError
-  };
 
   /**
    * обновляет пины в соответствии с выбранными фильтрами
@@ -434,4 +429,13 @@
   mapFilters.addEventListener('change', function () {
     window.debounce(updatePins);
   });
+
+  window.map = {
+    deactivatePage: deactivatePage,
+    onError: onError,
+    capacityElem: capacity,
+    mapFiltersElem: mapFilters,
+    mapPinsElem: similarPinsList,
+    noticeFormElem: noticeForm
+  };
 })();

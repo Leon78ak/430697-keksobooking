@@ -33,8 +33,8 @@
     0: 'не для гостей'
   };
 
-  var noticeForm = document.querySelector('.notice__form');
-  var mapFiltersForm = document.querySelector('.map__filters');
+  var noticeForm = window.map.noticeFormElem;
+  var mapFiltersForm = window.map.mapFiltersElem;
   var titleField = noticeForm.querySelector('#title');
   var timeIn = noticeForm.querySelector('#timein');
   var timeOut = noticeForm.querySelector('#timeout');
