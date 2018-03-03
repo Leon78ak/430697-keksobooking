@@ -171,10 +171,11 @@
 
   var openPopup = function (data) {
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(data.filter(function (item) {
-      if (item.author.avatar === image) {
-        return item;
+    var item = window.renderCard(data.filter(function (card) {
+      if (card.author.avatar === image) {
+        return card;
       }
+      return false;
     })[0]);
 
     var fragmentCard = document.createDocumentFragment();
@@ -423,7 +424,7 @@
     }
     features.forEach(function (feature) {
       notices = notices.filter(function (it) {
-          return it.offer.features.includes(feature.value);
+        return it.offer.features.includes(feature.value);
       });
     });
 

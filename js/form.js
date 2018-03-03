@@ -154,9 +154,7 @@
    * @param  {Object} evt объект событий
    */
   var onSubmit = function (evt) {
-    window.backend.save(new FormData(noticeForm), function (response) {
-      onReset();
-    }, window.map.onError);
+    window.backend.save(new FormData(noticeForm), onReset(), window.map.onError);
     evt.preventDefault();
   };
 
