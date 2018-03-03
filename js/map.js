@@ -1,11 +1,29 @@
 'use strict';
 
 (function () {
+
+  /**
+   * граничные значения диапазона координат на карте
+   * @enum {number}
+   */
+  var Coords = {
+    MIN_X: 300,
+    MAX_X: 900,
+    MIN_Y: 150,
+    MAX_Y: 500
+  };
+
+  var OFFERS_LENGTH = 5;
+
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
-  var mapFilters = map.querySelector('.map__filters-container');
+  var mapFiltersContainer = map.querySelector('.map__filters-container');
+  var mapFilters = map.querySelector('.map__filters');
+  var typeFilter = mapFilters.querySelector('#housing-type');
+  var priceFilter = mapFilters.querySelector('#housing-price');
+  var roomsFilter = mapFilters.querySelector('#housing-rooms');
+  var guestsFilter = mapFilters.querySelector('#housing-guests');
   var mapPinMain = map.querySelector('.map__pin--main');
-
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
   var formFieldsets = noticeForm.querySelectorAll('fieldset');
@@ -37,6 +55,9 @@
     Array.from(formFieldsets).forEach(function (fieldset) {
       fieldset.disabled = false;
     });
+    Array.from(mapFilters).forEach(function (filter) {
+      filter.disabled = false;
+    });
     // удаляем из разметки выбора количества мест все доступные опции
     // кроме выбранной по умолчанию
     Array.from(capacitys).filter(function (option) {
@@ -56,6 +77,9 @@
     Array.from(formFieldsets).forEach(function (fieldset) {
       fieldset.disabled = true;
     });
+    Array.from(mapFilters).forEach(function (filter) {
+      filter.disabled = true;
+    });
   };
 
   /**
@@ -63,8 +87,18 @@
    * @param  {Array.<Object>} data массив объектов с данными
    */
   var showPins = function (data) {
-    similarPinsList.appendChild(renderPin(data));
+    // копируем 5 данных из массива
+    var pins = newData.slice(0, OFFERS_LENGTH);
+    // var pins = window.util.getShuffleArray(newData).slice(0, OFFERS_LENGTH);
+    // console.log(pins)
+    similarPinsList.appendChild(window.renderPins(pins));
   };
+
+  /**
+   * инициализируем переменную для хранения данных с сервера
+   * @type {Array.<?Object>}
+   */
+   var newData = [];
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
@@ -72,20 +106,40 @@
    * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
-    showPins(data);
+    data.filter(function (it) {
+      if (it.author.avatar !== "img/avatars/default.png") {
+        newData.push(it);
+      };
+    });
 
-    return window.data.notices = data;
-  }
+    showPins(newData);
+  };
+
+  /**
+   * функция обратного вызова, которая срабатывает при неуспешном выполнении запроса:
+   * выводит окно с сообщением об ошибке
+   * @param  {string} error сообщение об ошибке
+   */
+  var onError = function (error) {
+    var errorMessage = document.createElement('div');
+    errorMessage.classList.add('error');
+    errorMessage.textContent = error;
+    document.body.appendChild(errorMessage);
+
+    setTimeout(function() {
+        document.body.removeChild(errorMessage);
+        deactivatePage();
+      }, 15000);
+  };
 
   /**
    * функция активации страницы
    * @param  {Function} callback передаем коллбэк из модуля работы с сервером
-   * @return {[type]}            [description]
    */
   var initPage = function (callback) {
     map.classList.remove('map--faded');
     initForm();
-    callback(onSuccess);
+    callback(onSuccess, onError);
   };
 
   var activePin = null;
@@ -103,7 +157,7 @@
     activePin = node;
     activePin.classList.add('map__pin--active');
 
-    openPopup();
+    openPopup(newData);
   };
 
   /**
@@ -121,9 +175,9 @@
    * показывает попап
    * @return {[type]} [description]
    */
-  var openPopup = function () {
+  var openPopup = function (data) {
     var image = getSrcOnActivePin(activePin);
-    var item = window.renderCard(window.data.notices.filter(function (item) {
+    var item = window.renderCard(data.filter(function (item) {
       if (item.author.avatar === image) {
         return item;
       }
@@ -132,7 +186,7 @@
     var fragmentCard = document.createDocumentFragment();
     fragmentCard.appendChild(item);
 
-    map.insertBefore(fragmentCard, mapFilters);
+    map.insertBefore(fragmentCard, mapFiltersContainer);
   };
 
   /**
@@ -192,32 +246,39 @@
   map.addEventListener('click', onPopupClick);
   map.addEventListener('keydown', onPopupKeydownPress, true);
 
-  /**
-   * деактивация страницы
-   */
-  window.deactivatePage = function () {
-    // устанавливаем значения адресного поля по умолчанию
-    getAddressCoords(initAddressCoords);
-
-    closePopup();
+  var removePins = function () {
     // скроем метки похожих объявлений
     var mapPin = map.querySelectorAll('.map__pin');
     Array.from(mapPin).forEach(function (pin) {
       if (!pin.classList.contains('map__pin--main')) {
-        pin.classList.add('hidden');
+        pin.remove();
       }
     });
+  };
+  var activePage = null;
+  /**
+   * деактивация страницы
+   */
+  var deactivatePage = function () {
+    activePage = false;
+    // устанавливаем значения адресного поля по умолчанию
+    getAddressCoords(initAddressCoords);
+
+    closePopup();
+
+    removePins();
 
     disableForm();
 
     map.classList.add('map--faded');
+
 
     // сброс значений положения главной метки в исходную позицию
     mapPinMain.style.top = '';
     mapPinMain.style.left = '';
   };
 
-  window.deactivatePage();
+  deactivatePage();
 
   // перемещение главной метки
   mapPinMain.addEventListener('mousedown', function (evt) {
@@ -253,16 +314,16 @@
       var newX = mapPinMain.offsetLeft - shift.x;
 
       // обработка выноса за верхнюю границу положения на карте
-      if (newY < window.data.coords.MIN_Y) {
-        newY = window.data.coords.MIN_Y;
+      if (newY < Coords.MIN_Y) {
+        newY = Coords.MIN_Y;
       }
 
       // вынос за нижнюю границу окна
       // новая нижняя граница элемента
       var newBottom = newY + mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT;
 
-      if (newBottom > window.data.coords.MAX_Y) {
-        newY = window.data.coords.MAX_Y - (mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT);
+      if (newBottom > Coords.MAX_Y) {
+        newY = Coords.MAX_Y - (mapPinMain.offsetHeight / 2 + window.PIN_ARROW_HEIGHT);
       }
 
       // вынос за левую границу окна
@@ -293,15 +354,91 @@
      * @param  {Object} upEvt Объект событий
      */
     var onMainPinMouseUp = function (upEvt) {
+      debugger;
       upEvt.preventDefault();
+
+      if (!activePage) {
+        initPage(window.backend.load);
+      }
+      activePage = true;
 
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
-
-      initPage(window.backend.load);
     };
 
     document.addEventListener('mousemove', onMainPinMouseMove);
     document.addEventListener('mouseup', onMainPinMouseUp);
+  });
+
+  window.map = {
+    deactivatePage: deactivatePage,
+    onError: onError
+  };
+
+  /**
+   * обновляет пины в соответствии с выбранными фильтрами
+   * @param  {[type]} type     [description]
+   * @param  {[type]} guests   [description]
+   * @param  {[type]} price    [description]
+   * @param  {[type]} rooms    [description]
+   * @param  {[type]} features [description]
+   * @return {[type]}          [description]
+   */
+  var updatePins =  function () {
+    var type = typeFilter.value;
+    var guests = guestsFilter.value;
+    var price = priceFilter.value;
+    var rooms = roomsFilter.value;
+    var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
+
+    var features = Array.from(featuresFilter).filter(function (it) {
+        return it.value;
+    });
+    closePopup();
+    removePins();
+
+    var notices = newData;
+
+    if (type !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.type === type;
+      });
+    }
+    if (guests !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.guests === (+guests);
+      });
+    }
+    if (rooms !== 'any') {
+      notices = notices.filter(function (it) {
+        return it.offer.rooms === (+rooms);
+      });
+    }
+    if (price !== 'any') {
+      if (price === 'low') {
+        notices = notices.filter(function (it) {
+          return it.offer.price < 10000;
+        });
+      } else if (price === 'high') {
+        notices = notices.filter(function (it) {
+          return it.offer.price > 50000;
+        });
+      } else if (price === 'middle') {
+        notices = notices.filter(function (it) {
+          return (it.offer.price >= 10000 && it.offer.price <= 50000);
+        });
+      }
+    }
+    features.forEach(function (feature) {
+      notices = notices.filter(function (it) {
+          return it.offer.features.includes(feature.value);
+        });
+    });
+
+    similarPinsList.appendChild(window.renderPins(notices));
+    }
+
+  mapFilters.addEventListener('change', function () {
+    window.debounce(updatePins);
   });
 })();

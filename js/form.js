@@ -34,6 +34,7 @@
   };
 
   var noticeForm = document.querySelector('.notice__form');
+  var mapFiltersForm = document.querySelector('.map__filters');
   var titleField = noticeForm.querySelector('#title');
   var timeIn = noticeForm.querySelector('#timein');
   var timeOut = noticeForm.querySelector('#timeout');
@@ -135,22 +136,31 @@
     validateInput(price);
   });
 
-  var onReset = function (evt) {
-    window.deactivatePage();
-    evt.preventDefault();
+  /**
+   * запускает логику событий при сбросе -
+   * сброс значений формы и деактивация страницы
+   */
+  var onReset = function () {
+    debugger;
+    noticeForm.reset();
+    mapFiltersForm.reset();
+    window.map.deactivatePage();
   };
 
   reset.addEventListener('click', onReset);
 
+  /**
+   * обработчик событий при отправке формы,
+   * при успешном ответе сбрасывает значения формы и деактивирует страницу
+   * @param  {Object} evt объект событий
+   */
   var onSubmit = function (evt) {
     window.backend.save(new FormData(noticeForm), function (response) {
       onReset();
-    });
+    }, window.map.onError);
     evt.preventDefault();
   };
 
-  noticeForm.addEventListener('submit', onSubmit, );
+  noticeForm.addEventListener('submit', onSubmit);
 })();
-
-
 

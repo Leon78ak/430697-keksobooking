@@ -24,18 +24,15 @@
   };
 
   /**
-   * отрисовывает метку
-   * @param {Array.<Object>} pins
+   * отрисовывает метки
+   * @param {array.<Object>} pins
    * @return {[type]}      [description]
    */
-  window.renderPin = function (pins) {
+  window.renderPins = function (pins) {
     var fragmentPin = document.createDocumentFragment();
     pins.forEach(function (pin) {
       fragmentPin.appendChild(getPinFromTemplate(pin));
-    });
+      });
     return fragmentPin;
   };
-
-  // similarPinsList.appendChild(renderPin(window.data.createNotices));
-
 })();

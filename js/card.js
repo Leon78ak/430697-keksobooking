@@ -22,7 +22,7 @@
   var renderPicturesToCard = function (card) {
     var fragment = document.createDocumentFragment();
     var cardPhotos = card.offer.photos;
-    cardPhotos.forEach(function (photo)  {
+    cardPhotos.forEach(function (photo) {
       var popupPicture = document.querySelector('template').content.querySelector('.popup__pictures > *').cloneNode(true);
       var popupImgElement = popupPicture.querySelector('img');
       popupImgElement.src = photo;
@@ -49,8 +49,13 @@
     return fragment;
   };
 
+  /**
+   * функция проверки количества комнат
+   * @param  {Object} card объект с данными
+   * @return {string}      количество комнат для гостей
+   */
   var roomsOffer = function (card) {
-    if (card.offer.rooms !== '0') {
+    if (card.offer.rooms !== 0) {
       return card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
     }
     return 'не для гостей';
