@@ -86,7 +86,7 @@
    * показывает метки на карте при инициализации страницы
    * @param  {Array.<Object>} data массив объектов с данными
    */
-  var showPins = function (data) {
+  var showPins = function () {
     // копируем 5 данных из массива
     var pins = newData.slice(0, OFFERS_LENGTH);
     // var pins = window.util.getShuffleArray(newData).slice(0, OFFERS_LENGTH);
@@ -98,18 +98,17 @@
    * инициализируем переменную для хранения данных с сервера
    * @type {Array.<?Object>}
    */
-   var newData = [];
+  var newData = [];
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
    * @param  {Array.<Object>} data массив данных
-   * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
     data.filter(function (it) {
-      if (it.author.avatar !== "img/avatars/default.png") {
+      if (it.author.avatar !== 'img/avatars/default.png') {
         newData.push(it);
-      };
+      }
     });
 
     showPins(newData);
@@ -126,10 +125,10 @@
     errorMessage.textContent = error;
     document.body.appendChild(errorMessage);
 
-    setTimeout(function() {
-        document.body.removeChild(errorMessage);
-        deactivatePage();
-      }, 15000);
+    setTimeout(function () {
+      document.body.removeChild(errorMessage);
+      deactivatePage();
+    }, 15000);
   };
 
   /**
@@ -162,19 +161,14 @@
 
   /**
    * возвращает значение src изображения на активной метке
-   * @param  {Element} activePin активная метка
    * @return {string}           значение src активной метки
    */
-  var getSrcOnActivePin = function (activePin) {
+  var getSrcOnActivePin = function () {
     var img = activePin.querySelector('img');
 
     return img.getAttribute('src');
   };
 
-  /**
-   * показывает попап
-   * @return {[type]} [description]
-   */
   var openPopup = function (data) {
     var image = getSrcOnActivePin(activePin);
     var item = window.renderCard(data.filter(function (item) {
@@ -354,7 +348,6 @@
      * @param  {Object} upEvt Объект событий
      */
     var onMainPinMouseUp = function (upEvt) {
-      debugger;
       upEvt.preventDefault();
 
       if (!activePage) {
@@ -382,9 +375,8 @@
    * @param  {[type]} price    [description]
    * @param  {[type]} rooms    [description]
    * @param  {[type]} features [description]
-   * @return {[type]}          [description]
    */
-  var updatePins =  function () {
+  var updatePins = function () {
     var type = typeFilter.value;
     var guests = guestsFilter.value;
     var price = priceFilter.value;
@@ -392,7 +384,7 @@
     var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
 
     var features = Array.from(featuresFilter).filter(function (it) {
-        return it.value;
+      return it.value;
     });
     closePopup();
     removePins();
@@ -432,11 +424,11 @@
     features.forEach(function (feature) {
       notices = notices.filter(function (it) {
           return it.offer.features.includes(feature.value);
-        });
+      });
     });
 
     similarPinsList.appendChild(window.renderPins(notices));
-    }
+  };
 
   mapFilters.addEventListener('change', function () {
     window.debounce(updatePins);
