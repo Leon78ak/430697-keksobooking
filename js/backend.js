@@ -11,6 +11,54 @@
   };
 
   var TIMEOUT = 10000;
+  var POST_URL = 'https://js.dump.academy/keksobooking';
+  var GET_URL = 'https://js.dump.academy/keksobooking/data';
+
+  var setupXHR = function (onLoad, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.timeout = TIMEOUT;
+
+    xhr.addEventListener('load', function () {
+
+      var error;
+      switch (xhr.status) {
+        case StatusCode.OK:
+          onLoad(xhr.response);
+          break;
+
+        case StatusCode.ERROR:
+          error = 'Неверный запрос';
+          break;
+        case StatusCode.UNAUTHORIZED:
+          error = 'Неавторизованный запрос';
+          break;
+        case StatusCode.NOT_FOUND:
+          error = 'Произошла ошибка соединения';
+          break;
+        case StatusCode.SERVER_ERROR:
+          error = 'Внутренняя ошибка сервера';
+          break;
+
+        default:
+          error = 'Cтатус ответа: : ' + xhr.status + ' ' + xhr.statusText;
+      }
+
+      if (error) {
+        onError(error);
+      }
+    });
+
+    xhr.addEventListener('error', function () {
+      onError('Произошла ошибка соединения');
+    });
+
+    xhr.addEventListener('timeout', function () {
+      onError('Запрос не успел выполниться за ' + TIMEOUT + 'мс');
+    });
+
+    return xhr;
+  };
 
   window.backend = {
     /**
@@ -23,41 +71,10 @@
      * которая срабатывает при неуспешном выполнении запроса
      */
     save: function (data, onLoad, onError) {
-      var SERVER_URL = 'https://js.dump.academy/keksobooking';
-      var xhr = new XMLHttpRequest();
-      xhr.responseType = 'json';
 
-      xhr.addEventListener('load', function () {
+      var xhr = setupXHR(onLoad, onError);
 
-        var error;
-        switch (xhr.status) {
-          case StatusCode.OK:
-            onLoad(xhr.response);
-            break;
-
-          case StatusCode.ERROR:
-            error = 'Неверный запрос';
-            break;
-          case StatusCode.UNAUTHORIZED:
-            error = 'Неавторизованный запрос';
-            break;
-          case StatusCode.NOT_FOUND:
-            error = 'Страница не найдена';
-            break;
-          case StatusCode.SERVER_ERROR:
-            error = 'Внутренняя ошибка сервера';
-            break;
-
-          default:
-            error = 'Cтатус ответа: : ' + xhr.status + ' ' + xhr.statusText;
-        }
-
-        if (error) {
-          onError(error);
-        }
-      });
-
-      xhr.open('POST', SERVER_URL);
+      xhr.open('POST', POST_URL);
       xhr.send(data);
     },
     /**
@@ -68,54 +85,11 @@
      * которая срабатывает при неуспешном выполнении запроса
      */
     load: function (onLoad, onError) {
-      var SERVER_UPLOAD_URL = 'https://js.dump.academy/keksobooking/data';
 
-      var xhr = new XMLHttpRequest();
-      xhr.responseType = 'json';
+      var xhr = setupXHR(onLoad, onError);
 
-
-      xhr.addEventListener('load', function () {
-        var error;
-        switch (xhr.status) {
-          case StatusCode.OK:
-            onLoad(xhr.response);
-            break;
-
-          case StatusCode.ERROR:
-            error = 'Неверный запрос';
-            break;
-          case StatusCode.UNAUTHORIZED:
-            error = 'Неавторизованный запрос';
-            break;
-          case StatusCode.NOT_FOUND:
-            error = 'Страница не найдена\nПроверьте адрес подключения';
-            break;
-          case StatusCode.SERVER_ERROR:
-            error = 'Внутренняя ошибка сервера';
-            break;
-
-          default:
-            error = 'Cтатус ответа: : ' + xhr.status + ' ' + xhr.statusText;
-        }
-
-        if (error) {
-          onError(error);
-        }
-      });
-
-      xhr.addEventListener('error', function () {
-        onError('Произошла ошибка соединения');
-      });
-
-      xhr.addEventListener('timeout', function () {
-        onError('Запрос не успел выполниться за ' + TIMEOUT + 'мс');
-      });
-
-      xhr.timeout = TIMEOUT;
-
-      xhr.open('GET', SERVER_UPLOAD_URL);
+      xhr.open('GET', GET_URL);
       xhr.send();
-
     }
   };
 })();

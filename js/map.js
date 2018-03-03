@@ -17,8 +17,6 @@
 
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
-  var mapFilters = map.querySelector('.map__filters-container');
-  var popupFilters = map.querySelector('.map__filters');
   var mapFiltersContainer = map.querySelector('.map__filters-container');
   var mapFilters = map.querySelector('.map__filters');
   var typeFilter = mapFilters.querySelector('#housing-type');
@@ -91,7 +89,9 @@
   var showPins = function (data) {
     // копируем 5 данных из массива
     var pins = newData.slice(0, OFFERS_LENGTH);
-    similarPinsList.appendChild(window.renderPin(pins));
+    // var pins = window.util.getShuffleArray(newData).slice(0, OFFERS_LENGTH);
+    // console.log(pins)
+    similarPinsList.appendChild(window.renderPins(pins));
   };
 
   /**
@@ -106,6 +106,7 @@
    * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
+    debugger;
     data.filter(function (it) {
       if (it.author.avatar !== "img/avatars/default.png")  {
         newData.push(it);
@@ -139,7 +140,6 @@
   var initPage = function (callback) {
     map.classList.remove('map--faded');
     initForm();
-    debugger;
     callback(onSuccess, onError);
   };
 
@@ -257,11 +257,12 @@
       }
     });
   };
-
+  var activePage = null;
   /**
    * деактивация страницы
    */
   var deactivatePage = function () {
+    activePage = false;
     // устанавливаем значения адресного поля по умолчанию
     getAddressCoords(initAddressCoords);
 
@@ -272,6 +273,7 @@
     disableForm();
 
     map.classList.add('map--faded');
+
 
     // сброс значений положения главной метки в исходную позицию
     mapPinMain.style.top = '';
@@ -354,12 +356,16 @@
      * @param  {Object} upEvt Объект событий
      */
     var onMainPinMouseUp = function (upEvt) {
+      debugger;
       upEvt.preventDefault();
+
+      if (!activePage) {
+        initPage(window.backend.load);
+      }
+      activePage = true;
 
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
-      debugger;
-      initPage(window.backend.load);
     };
 
     document.addEventListener('mousemove', onMainPinMouseMove);
@@ -374,7 +380,6 @@
 
 
 
-  var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
 
   /**
    * обновляет пины в соответствии с выбранными фильтрами
@@ -390,7 +395,7 @@
     removePins();
 
     var newNotices = [];
-
+    debugger;
     if (type !== 'any') {
       newNotices = newData.filter(function (it) {
         return it.offer.type === type;
@@ -399,12 +404,12 @@
     }
     if (guests !== 'any') {
       newNotices = newData.filter(function (it) {
-        return it.offer.guests === guests;
+        return it.offer.guests === (+guests);
       });
     }
     if (rooms !== 'any') {
       newNotices = newData.filter(function (it) {
-        return it.offer.rooms === rooms;
+        return it.offer.rooms === (+rooms);
       });
     }
     if (price !== 'any') {
@@ -428,7 +433,7 @@
         });
     });
 
-    similarPinsList.appendChild(window.renderPin(newNotices));
+    similarPinsList.appendChild(window.renderPins(newNotices));
     }
 
   mapFilters.addEventListener('change', function () {
@@ -436,6 +441,7 @@
     var guests = guestsFilter.value;
     var price = priceFilter.value;
     var rooms = roomsFilter.value;
+    var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
 
     var features = Array.from(featuresFilter).filter(function (it) {
         return it.value;

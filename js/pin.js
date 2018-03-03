@@ -24,12 +24,11 @@
   };
 
   /**
-   * отрисовывает метку - копируем исходный массив данных,
-   * извлекаем из него 5 случайных объектов с данными
+   * отрисовывает метки
    * @param {array.<Object>} pins
    * @return {[type]}      [description]
    */
-  window.renderPin = function (pins) {
+  window.renderPins = function (pins) {
     var fragmentPin = document.createDocumentFragment();
     pins.forEach(function (pin) {
       fragmentPin.appendChild(getPinFromTemplate(pin));
