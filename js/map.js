@@ -368,8 +368,7 @@
 
   window.map = {
     deactivatePage: deactivatePage,
-    onError: onError,
-    notices: notices
+    onError: onError
   };
 
 
@@ -377,6 +376,15 @@
 
   var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
 
+  /**
+   * обновляет пины в соответствии с выбранными фильтрами
+   * @param  {[type]} type     [description]
+   * @param  {[type]} guests   [description]
+   * @param  {[type]} price    [description]
+   * @param  {[type]} rooms    [description]
+   * @param  {[type]} features [description]
+   * @return {[type]}          [description]
+   */
   var updatePins =  function (type, guests, price, rooms, features) {
     closePopup();
     removePins();
