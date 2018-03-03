@@ -24,15 +24,16 @@
   };
 
   /**
-   * отрисовывает метку
-   * @param {Array.<Object>} pins
+   * отрисовывает метку - копируем исходный массив данных,
+   * извлекаем из него 5 случайных объектов с данными
+   * @param {array.<Object>} pins
    * @return {[type]}      [description]
    */
   window.renderPin = function (pins) {
     var fragmentPin = document.createDocumentFragment();
     pins.forEach(function (pin) {
       fragmentPin.appendChild(getPinFromTemplate(pin));
-    });
+      });
     return fragmentPin;
   };
 })();

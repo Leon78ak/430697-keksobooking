@@ -15,7 +15,12 @@
 
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
-  var mapFilters = map.querySelector('.map__filters-container');
+  var mapFiltersContainer = map.querySelector('.map__filters-container');
+  var mapFilters = map.querySelector('.map__filters');
+  var typeFilter = mapFilters.querySelector('#housing-type');
+  var priceFilter = mapFilters.querySelector('#housing-price');
+  var roomsFilter = mapFilters.querySelector('#housing-rooms');
+  var guestsFilter = mapFilters.querySelector('#housing-guests');
   var mapPinMain = map.querySelector('.map__pin--main');
   var pinsContainer = map.querySelector('.map__pins');
   var noticeForm = document.querySelector('.notice__form');
@@ -48,6 +53,9 @@
     Array.from(formFieldsets).forEach(function (fieldset) {
       fieldset.disabled = false;
     });
+    Array.from(mapFilters).forEach(function (filter) {
+      filter.disabled = false;
+    });
     // удаляем из разметки выбора количества мест все доступные опции
     // кроме выбранной по умолчанию
     Array.from(capacitys).filter(function (option) {
@@ -67,21 +75,35 @@
     Array.from(formFieldsets).forEach(function (fieldset) {
       fieldset.disabled = true;
     });
+    Array.from(mapFilters).forEach(function (filter) {
+      filter.disabled = true;
+    });
   };
+
+  var newData = [];
 
   /**
    * показывает метки на карте при инициализации страницы
    * @param  {Array.<Object>} data массив объектов с данными
    */
   var showPins = function (data) {
-    similarPinsList.appendChild(window.renderPin(data));
+
+    data.filter(function (it) {
+      if (it.author.avatar !== "img/avatars/default.png")  {
+        newData.push(it);
+        console.log(newData);
+      };
+    });
+    // копируем 5 данных из массива
+    var pins = newData.slice(0, 5);
+    similarPinsList.appendChild(window.renderPin(pins));
   };
 
   /**
    * инициализируем переменную для хранения данных с сервера
    * @type {Array.<Object>}
    */
-  var notices;
+  var notices = [];
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
@@ -90,9 +112,9 @@
    */
   var onSuccess = function (data) {
     showPins(data);
-    notices = data;
+    // notices = data;
 
-    return notices;
+    // return notices;
   };
 
 
@@ -102,27 +124,13 @@
    * @param  {string} error сообщение об ошибке
    */
   var onError = function (error) {
-    console.log(error);
-    var message = document.createElement('div');
-    message.style.cssText="position: fixed; \
-    top: 10vh; \
-    left: 50%; \
-    z-index: 100; \
-    width: 400px; \
-    margin-left: -200px; \
-    font-size: 2em; \
-    color: #ff5635; !important; \
-    text-align: center; \
-    text-transform: uppercase; \
-    border: 2px solid #ff5635; \
-    border-radius: 4px; \
-    background-color: #ffffff; \
-    ";
-    message.innerHTML = error;
-    document.body.appendChild(message);
+    var errorMessage = document.createElement('div');
+    errorMessage.classList.add('error');
+    errorMessage.textContent = error;
+    document.body.appendChild(errorMessage);
 
     setTimeout(function() {
-        document.body.removeChild(message);
+        document.body.removeChild(errorMessage);
         deactivatePage();
       }, 15000);
   };
@@ -134,7 +142,7 @@
   var initPage = function (callback) {
     map.classList.remove('map--faded');
     initForm();
-
+    debugger;
     callback(onSuccess, onError);
   };
 
@@ -154,7 +162,7 @@
     activePin = node;
     activePin.classList.add('map__pin--active');
 
-    openPopup(notices);
+    openPopup(newData);
   };
 
   /**
@@ -183,7 +191,7 @@
     var fragmentCard = document.createDocumentFragment();
     fragmentCard.appendChild(item);
 
-    map.insertBefore(fragmentCard, mapFilters);
+    map.insertBefore(fragmentCard, mapFiltersContainer);
   };
 
   /**
@@ -243,6 +251,16 @@
   map.addEventListener('click', onPopupClick);
   map.addEventListener('keydown', onPopupKeydownPress, true);
 
+  var removePins = function () {
+    // скроем метки похожих объявлений
+    var mapPin = map.querySelectorAll('.map__pin');
+    Array.from(mapPin).forEach(function (pin) {
+      if (!pin.classList.contains('map__pin--main')) {
+        pin.remove();
+      }
+    });
+  };
+
   /**
    * деактивация страницы
    */
@@ -251,13 +269,8 @@
     getAddressCoords(initAddressCoords);
 
     closePopup();
-    // скроем метки похожих объявлений
-    var mapPin = map.querySelectorAll('.map__pin');
-    Array.from(mapPin).forEach(function (pin) {
-      if (!pin.classList.contains('map__pin--main')) {
-        pin.remove();
-      }
-    });
+
+    removePins();
 
     disableForm();
 
@@ -348,7 +361,7 @@
 
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
-
+      debugger;
       initPage(window.backend.load);
     };
 
@@ -358,6 +371,85 @@
 
   window.map = {
     deactivatePage: deactivatePage,
-    onError: onError
-  }
+    onError: onError,
+    notices: notices
+  };
+
+
+
+
+
+  var updatePins =  function (type, guests, rooms, price) {
+    closePopup();
+    removePins();
+
+    var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
+
+
+    var newNotices = [];
+     debugger;
+
+    if (type !== 'any') {
+      newNotices = newData.filter(function (it) {
+        return it.offer.type === type;
+      });
+      console.log(newNotices);
+    }
+    if (guests !== 'any') {
+      newNotices = newData.filter(function (it) {
+        return it.offer.guests === guests;
+      });
+    }
+    if (rooms !== 'any') {
+      newNotices = newData.filter(function (it) {
+        return it.offer.rooms === rooms;
+      });
+
+    }
+    if (price !== 'any') {
+      if (price === 'low') {
+        newNotices = newData.filter(function (it) {
+          return it.offer.price < 10000;
+        });
+      } else if (price === 'high') {
+        newNotices = newData.filter(function (it) {
+          return it.offer.price > 50000;
+        });
+      } else if (price === 'middle') {
+        newNotices = newData.filter(function (it) {
+          return (it.offer.price >= 10000 && it.offer.price <= 50000);
+        });
+      }
+    }
+    // features.forEach(function (feature) {
+    //   newNotices = newData.map(function (it) {
+    //       return it.offer.features;
+    //     }).every(function (it) {
+    //       if (it.includes(features.value)) {
+    //         return it
+    //       };
+    //     });
+    // });
+
+    similarPinsList.appendChild(window.renderPin(newNotices));
+    }
+
+  mapFilters.addEventListener('change', function () {
+    debugger;
+    var type = typeFilter.value;
+    var guests = guestsFilter.value;
+    var price = priceFilter.value;
+    var rooms = roomsFilter.value;
+
+    // var features = Array.from(featuresFilter).filter(function (it) {
+    //   if (it.checked) {
+    //     return it.value;
+    //   }
+    // });
+    updatePins(type, guests, rooms, price);
+
+  });
+
+
+
 })();
