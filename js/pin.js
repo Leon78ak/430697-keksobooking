@@ -3,7 +3,6 @@
 (function () {
   window.PIN_ARROW_HEIGHT = 18;
 
-  var map = document.querySelector('.map');
   var template = document.querySelector('template');
   var similarPinTemplate = template.content.querySelector('.map__pin');
 
