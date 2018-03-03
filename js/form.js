@@ -34,6 +34,7 @@
   };
 
   var noticeForm = document.querySelector('.notice__form');
+  var mapFiltersForm = document.querySelector('.map__filters');
   var titleField = noticeForm.querySelector('#title');
   var timeIn = noticeForm.querySelector('#timein');
   var timeOut = noticeForm.querySelector('#timeout');
@@ -142,6 +143,7 @@
   var onReset = function () {
     debugger;
     noticeForm.reset();
+    mapFiltersForm.reset();
     window.map.deactivatePage();
   };
 

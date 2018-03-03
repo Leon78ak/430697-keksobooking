@@ -13,6 +13,8 @@
     MAX_Y: 500
   };
 
+  var OFFERS_LENGTH = 5;
+
   var map = document.querySelector('.map');
   var similarPinsList = map.querySelector('.map__pins');
   var mapFilters = map.querySelector('.map__filters-container');
@@ -82,22 +84,13 @@
     });
   };
 
-  var newData = [];
-
   /**
    * показывает метки на карте при инициализации страницы
    * @param  {Array.<Object>} data массив объектов с данными
    */
   var showPins = function (data) {
-
-    data.filter(function (it) {
-      if (it.author.avatar !== "img/avatars/default.png")  {
-        newData.push(it);
-        console.log(newData);
-      };
-    });
     // копируем 5 данных из массива
-    var pins = newData.slice(0, 5);
+    var pins = newData.slice(0, OFFERS_LENGTH);
     similarPinsList.appendChild(window.renderPin(pins));
   };
 
@@ -105,7 +98,7 @@
    * инициализируем переменную для хранения данных с сервера
    * @type {Array.<?Object>}
    */
-  var notices = [];
+   var newData = [];
 
   /**
    * функция-коллбэк возвращает массив данных в случае успеха
@@ -113,12 +106,14 @@
    * @return {Array.<Object>}      записываем полученные данные
    */
   var onSuccess = function (data) {
-    showPins(data);
-    // notices = data;
+    data.filter(function (it) {
+      if (it.author.avatar !== "img/avatars/default.png")  {
+        newData.push(it);
+      };
+    });
 
-    // return notices;
+    showPins(newData);
   };
-
 
   /**
    * функция обратного вызова, которая срабатывает при неуспешном выполнении запроса:
@@ -380,16 +375,13 @@
 
 
 
-  var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]');
+  var featuresFilter = mapFilters.querySelector('#housing-features').querySelectorAll('input[type=checkbox]:checked');
 
   var updatePins =  function (type, guests, price, rooms, features) {
     closePopup();
     removePins();
 
-
-
     var newNotices = [];
-     debugger;
 
     if (type !== 'any') {
       newNotices = newData.filter(function (it) {
@@ -432,18 +424,15 @@
     }
 
   mapFilters.addEventListener('change', function () {
-    debugger;
     var type = typeFilter.value;
     var guests = guestsFilter.value;
     var price = priceFilter.value;
     var rooms = roomsFilter.value;
 
     var features = Array.from(featuresFilter).filter(function (it) {
-      if (it.checked) {
         return it.value;
-      }
     });
-    updatePins(type, guests, price, rooms, features);
 
+    updatePins(type, guests, price, rooms, features);
   });
 })();
