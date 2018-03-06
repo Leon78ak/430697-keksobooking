@@ -14,8 +14,8 @@
    */
   var onFileSelect = function (evt) {
 
-    if (this === fileChooser) {
-      var file = this.files[0];
+    if (evt.target === fileChooser) {
+      var file = evt.target.files[0];
     } else {
       file = evt.dataTransfer.files[0];
     }
