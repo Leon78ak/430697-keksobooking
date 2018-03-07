@@ -144,6 +144,7 @@
     noticeForm.reset();
     mapFiltersForm.reset();
     window.map.deactivatePage();
+    window.resetPhotoPreview();
   };
 
   reset.addEventListener('click', onReset);

@@ -101,6 +101,12 @@ textarea:focus
     display: none;
 }
 
+.photoPreview {
+    width: 60px;
+    height: 60px;
+    margin-right: 5px;
+}
+
 .visuallyhidden
 {
     position: absolute;
@@ -754,7 +760,11 @@ textarea:focus
 
 .form__photo-container
 {
-    width: 140px;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .form__element--submit

@@ -2,47 +2,74 @@
 
 (function () {
 
-  var FYLE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+  var fileChooserAvatar = document.querySelector('#avatar');
+  var fileChooserImages = document.querySelector('#images');
+  var dropZoneAvatar = document.querySelector('.notice__photo .drop-zone');
+  var dropZoneImages = document.querySelector('.form__photo-container .drop-zone');
+  var avatarPreview = document.querySelector('.notice__preview img');
+  var photoPreview = document.querySelector('.form__photo-container');
+  var AVATAR_DEFAULT_IMAGE = 'img/muffin.png';
 
-  var fileChooser = document.querySelector('.upload input[type=file]');
-  var preview = document.querySelector('.notice__preview img');
-  var dropZone = document.querySelector('.drop-zone');
+  /**
+   * отрисовка аватара
+   * @param  {Object} files  объект из списка файлов
+   */
+  var renderAvatar = function (files) {
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      var imageType = /image.*/;
+      if (file.type.match(imageType)) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function () {
+          avatarPreview.src = reader.result;
+        });
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  /**
+   * отрисовка списка фотографий
+   * @param  {Object} files  объект из списка файлов
+   */
+  var renderImages = function (files) {
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      var imageType = /image.*/;
+      if (file.type.match(imageType)) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function () {
+          var image = new Image(70, 70);
+          image.src = reader.result;
+          photoPreview.appendChild(image);
+        });
+        reader.readAsDataURL(file);
+      }
+    }
+  };
 
   /**
    * обработчик событий при выборе файла
-   * @param  {Object} evt объект событий
+   * @param  {Object}   evt      объект событий
+   * @param  {Function} callback функция отрисовки фотографий
    */
-  var onFileSelect = function (evt) {
+  var onFileSelect = function (evt, callback) {
 
-    if (evt.target === fileChooser) {
-      var file = evt.target.files[0];
-    } else {
-      file = evt.dataTransfer.files[0];
-    }
+    var files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
 
-    var fileName = file.name.toLowerCase();
+    callback(files);
 
-    var mathces = FYLE_TYPES.some(function (it) {
-      return fileName.endsWith(it);
-    });
-
-    if (mathces) {
-      var reader = new FileReader();
-
-      reader.addEventListener('load', function () {
-        preview.src = reader.result;
-      });
-
-      reader.readAsDataURL(file);
-    }
     evt.stopPropagation();
     evt.preventDefault();
   };
+
   /**
    * обработчик событий при при старте перетаскивания
    * @param  {Object} evt объект событий
    */
-  var handleDragOver = function (evt) {
+  var onDragOver = function (evt) {
     evt.stopPropagation();
     evt.preventDefault();
     evt.dataTransfer.dropEffect = 'copy';
@@ -51,22 +78,50 @@
    * обработчик событий при входе в зону броска
    * @param  {Object} evt объект событий
    */
-  var handleDragEnter = function (evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-  };
-  /**
-   * обработчик событий при оставлении зоны броска
-   * @param  {Object} evt объект событий
-   */
-  var handleDragLeave = function (evt) {
+  var onDragEnter = function (evt) {
     evt.stopPropagation();
     evt.preventDefault();
   };
 
-  fileChooser.addEventListener('change', onFileSelect);
-  dropZone.addEventListener('dragenter', handleDragEnter);
-  dropZone.addEventListener('dragover', handleDragOver);
-  dropZone.addEventListener('dragleave', handleDragLeave);
-  dropZone.addEventListener('drop', onFileSelect);
+  /**
+   * обработчик событий при оставлении зоны броска
+   * @param  {Object} evt объект событий
+   */
+  var onDragLeave = function (evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+  };
+
+  /**
+   * получаем фотографии на форму
+   * @param  {Element} fileChooser  инпут выбора файла
+   * @param  {Element} dropZone     поле для сброса файла при перетягивании
+   * @param  {callback} renderPhotos функция отрисовки фото из файла
+   */
+  var getPhotos = function (fileChooser, dropZone, renderPhotos) {
+    fileChooser.addEventListener('change', function (evt) {
+      onFileSelect(evt, renderPhotos);
+    });
+    dropZone.addEventListener('dragenter', onDragEnter);
+    dropZone.addEventListener('dragover', onDragOver);
+    dropZone.addEventListener('dragleave', onDragLeave);
+    dropZone.addEventListener('drop', function (evt) {
+      onFileSelect(evt, renderPhotos);
+    });
+  };
+
+  getPhotos(fileChooserAvatar, dropZoneAvatar, renderAvatar);
+  getPhotos(fileChooserImages, dropZoneImages, renderImages);
+
+  /**
+   * очищает поля выбора фотографий при сбросе формы
+   */
+  window.resetPhotoPreview = function () {
+    avatarPreview = AVATAR_DEFAULT_IMAGE;
+
+    var photoPreviewImages = photoPreview.querySelectorAll('img');
+    Array.from(photoPreviewImages).forEach(function (image) {
+      image.remove();
+    });
+  };
 })();
