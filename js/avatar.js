@@ -8,7 +8,7 @@
   var dropZoneImages = document.querySelector('.form__photo-container .drop-zone');
   var avatarPreview = document.querySelector('.notice__preview img');
   var photoPreview = document.querySelector('.form__photo-container');
-  var AVATAR_DEFAULT_IMAGE = 'img/muffin.png';
+  var AVATAR_DEFAULT_IMAGE_SRC = 'img/muffin.png';
 
   /**
    * отрисовка аватара
@@ -117,7 +117,7 @@
    * очищает поля выбора фотографий при сбросе формы
    */
   window.resetPhotoPreview = function () {
-    avatarPreview = AVATAR_DEFAULT_IMAGE;
+    avatarPreview.src = AVATAR_DEFAULT_IMAGE_SRC;
 
     var photoPreviewImages = photoPreview.querySelectorAll('img');
     Array.from(photoPreviewImages).forEach(function (image) {
