@@ -57,7 +57,7 @@
    */
   var onFileSelect = function (evt, callback) {
 
-    var files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+    var files = evt.dataTransfer ? evt.dataTransfer.files : evt.target.files;
 
     callback(files);
 
